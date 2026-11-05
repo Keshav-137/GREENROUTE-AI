@@ -1,0 +1,56 @@
+import { create } from 'zustand';
+import { RouteCandidate, PlanResponse } from '@/types';
+
+interface RouteState {
+  planResult: PlanResponse | null;
+  routes: RouteCandidate[];
+  selectedRouteId: string | null;
+  recommendedRouteId: string | null;
+
+  setPlanResult: (result: PlanResponse) => void;
+  setSelectedRouteId: (id: string) => void;
+  setRecommendedRouteId: (id: string) => void;
+  getSelectedRoute: () => RouteCandidate | undefined;
+  getRecommendedRoute: () => RouteCandidate | undefined;
+  clearRoutes: () => void;
+}
+
+export const useRouteStore = create<RouteState>((set, get) => ({
+  planResult: null,
+  routes: [],
+  selectedRouteId: null,
+  recommendedRouteId: null,
+
+  setPlanResult: (result) => {
+    set({
+      planResult: result,
+      routes: result.routes,
+      recommendedRouteId: result.recommended_route_id,
+      selectedRouteId: result.recommended_route_id,
+    });
+  },
+
+  setSelectedRouteId: (id) => set({ selectedRouteId: id }),
+
+  setRecommendedRouteId: (id) => set({ recommendedRouteId: id }),
+
+  getSelectedRoute: () => {
+    const { routes, selectedRouteId } = get();
+    return routes.find((r) => r.id === selectedRouteId) || routes[0];
+  },
+
+  getRecommendedRoute: () => {
+    const { routes, recommendedRouteId } = get();
+    return routes.find((r) => r.id === recommendedRouteId) || routes[0];
+  },
+
+  clearRoutes: () => {
+    set({
+      planResult: null,
+      routes: [],
+      selectedRouteId: null,
+      recommendedRouteId: null,
+    });
+  },
+}));
+

@@ -1,0 +1,116 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --bg-dark: #12231e;
+    --card-surface: #162c26;
+    --card-elevated: #1c3730;
+    --accent-green: #1a5c47;
+    --accent-teal: #2f8a9d;
+    --accent-amber: #d8993a;
+    --accent-risk: #c0504d;
+    --border-subtle: #23453c;
+    --text-muted: #8ba89f;
+  }
+
+  body {
+    background-color: var(--bg-dark);
+    color: #eff9f5;
+    font-family: 'Inter', sans-serif;
+    overflow-x: hidden;
+  }
+
+  /* Custom dark scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #0f1c18;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #23453c;
+    border-radius: 3px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #2f8a9d;
+  }
+}
+
+/* Range input styling for GreenRoute AI sliders */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  background: #1c3730;
+  border-radius: 9999px;
+  height: 6px;
+  outline: none;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #2f8a9d;
+  border: 2px solid #eff9f5;
+  cursor: pointer;
+  box-shadow: 0 0 8px rgba(47, 138, 157, 0.4);
+  transition: transform 0.15s ease, background-color 0.15s ease;
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+  background: #42a7bc;
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #2f8a9d;
+  border: 2px solid #eff9f5;
+  cursor: pointer;
+  box-shadow: 0 0 8px rgba(47, 138, 157, 0.4);
+  transition: transform 0.15s ease, background-color 0.15s ease;
+}
+
+/* MapLibre custom control styles */
+.maplibregl-popup-content {
+  background-color: #162c26 !important;
+  color: #eff9f5 !important;
+  border: 1px solid #23453c !important;
+  border-radius: 8px !important;
+  padding: 12px !important;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5) !important;
+}
+
+.maplibregl-popup-anchor-bottom .maplibregl-popup-tip {
+  border-top-color: #162c26 !important;
+}
+
+.maplibregl-ctrl-group {
+  background: #162c26 !important;
+  border: 1px solid #23453c !important;
+  border-radius: 8px !important;
+  overflow: hidden;
+}
+
+.maplibregl-ctrl-group button {
+  border-bottom: 1px solid #23453c !important;
+}
+
+.maplibregl-ctrl-group button:last-child {
+  border-bottom: none !important;
+}
+
+.maplibregl-ctrl-icon {
+  filter: invert(0.8) sepia(0.2) saturate(2) hue-rotate(120deg) brightness(1.2);
+}
+

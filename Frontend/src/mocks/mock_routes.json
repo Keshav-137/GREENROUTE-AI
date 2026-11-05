@@ -1,0 +1,38 @@
+{
+  "_comment": "DEMONSTRATION MOCK DATA - Routes catalog for predefined corridors",
+  "corridor_id": "corridor_pune_mumbai",
+  "origin_city": "Pune",
+  "destination_city": "Mumbai / JNPT",
+  "available_routes_count": 3,
+  "last_updated": "2026-11-05T08:30:00.000Z",
+  "routes": [
+    {
+      "id": "route-opt-1",
+      "name": "Yashwantrao Chavan Expressway (NH 48)",
+      "type": "expressway",
+      "distance_km": 142.5,
+      "base_duration_hours": 2.85,
+      "avg_toll_inr": 620,
+      "road_grade_class": "gentle_managed"
+    },
+    {
+      "id": "route-opt-2",
+      "name": "Old Mumbai-Pune Highway (Old NH 48 via Ghat)",
+      "type": "national_highway",
+      "distance_km": 138.2,
+      "base_duration_hours": 3.65,
+      "avg_toll_inr": 240,
+      "road_grade_class": "steep_ghat"
+    },
+    {
+      "id": "route-opt-3",
+      "name": "State Highway 54 via Karjat - Panvel Corridor",
+      "type": "state_highway",
+      "distance_km": 154.0,
+      "base_duration_hours": 3.35,
+      "avg_toll_inr": 180,
+      "road_grade_class": "moderate_plains"
+    }
+  ]
+}
+

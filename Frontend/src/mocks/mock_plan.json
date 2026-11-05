@@ -1,0 +1,379 @@
+{
+  "_comment": "DEMONSTRATION MOCK DATA - Realistic Pune to Mumbai Freight Corridor (NH48)",
+  "trip_id": "trip_demo_pune_mumbai_001",
+  "created_at": "2026-11-05T08:30:00.000Z",
+  "origin": {
+    "name": "Pune Freight Hub, Bhosari MIDC",
+    "lat": 18.6275,
+    "lon": 73.8443,
+    "address": "Bhosari Industrial Area, Pune, Maharashtra 411026"
+  },
+  "destination": {
+    "name": "JNPT Container Port, Navi Mumbai",
+    "lat": 18.9482,
+    "lon": 72.9514,
+    "address": "Jawaharlal Nehru Port Trust, Navi Mumbai, Maharashtra 400707"
+  },
+  "vehicle": {
+    "id": "veh-heavy-diesel-1",
+    "name": "Tata Signa 4825.TK (Multi-Axle)",
+    "type": "heavy_duty_diesel",
+    "max_payload_tons": 28.0
+  },
+  "cargo_load_tons": 18.5,
+  "recommended_route_id": "route-opt-1",
+  "routes": [
+    {
+      "id": "route-opt-1",
+      "name": "Yashwantrao Chavan Expressway (NH 48)",
+      "distance_km": 142.5,
+      "duration_hours": 2.85,
+      "fuel_liters": 44.8,
+      "fuel_uncertainty_pct": 3.8,
+      "co2_kg": 118.2,
+      "cost_inr": 5840,
+      "risk_score": 0.18,
+      "pareto_optimal": true,
+      "toll_charges_inr": 620,
+      "average_speed_kmh": 50.0,
+      "weather_condition": "Clear, light coastal breeze, 28°C",
+      "highlight_reason": "Optimal multi-objective balance: lowest climate risk and 12.5% fuel saving",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [73.8443, 18.6275],
+          [73.8120, 18.6510],
+          [73.7430, 18.7050],
+          [73.6820, 18.7300],
+          [73.6150, 18.7380],
+          [73.5420, 18.7490],
+          [73.4750, 18.7520],
+          [73.4072, 18.7557],
+          [73.3750, 18.7690],
+          [73.3440, 18.7890],
+          [73.2800, 18.8300],
+          [73.2350, 18.8850],
+          [73.1850, 18.9400],
+          [73.1100, 18.9900],
+          [73.0450, 18.9750],
+          [72.9820, 18.9610],
+          [72.9514, 18.9482]
+        ]
+      },
+      "segments": [
+        {
+          "id": "seg-1-1",
+          "start_coord": [73.8443, 18.6275],
+          "end_coord": [73.6820, 18.7300],
+          "distance_km": 24.5,
+          "risk_score": 0.12,
+          "risk_level": "low",
+          "hazard_type": "Standard urban fringe traffic",
+          "elevation_change_m": -35,
+          "gradient_pct": 0.8
+        },
+        {
+          "id": "seg-1-2",
+          "start_coord": [73.6820, 18.7300],
+          "end_coord": [73.4072, 18.7557],
+          "distance_km": 36.2,
+          "risk_score": 0.24,
+          "risk_level": "low",
+          "hazard_type": "Moderate plateau climb to Lonavala crest",
+          "elevation_change_m": 85,
+          "gradient_pct": 2.1
+        },
+        {
+          "id": "seg-1-3",
+          "start_coord": [73.4072, 18.7557],
+          "end_coord": [73.2800, 18.8300],
+          "distance_km": 28.6,
+          "risk_score": 0.28,
+          "risk_level": "medium",
+          "hazard_type": "Khandala descent & Bhatan tunnels",
+          "elevation_change_m": -420,
+          "gradient_pct": 3.8
+        },
+        {
+          "id": "seg-1-4",
+          "start_coord": [73.2800, 18.8300],
+          "end_coord": [72.9514, 18.9482],
+          "distance_km": 53.2,
+          "risk_score": 0.14,
+          "risk_level": "low",
+          "hazard_type": "Flat coastal plain approaching JNPT",
+          "elevation_change_m": -40,
+          "gradient_pct": 0.4
+        }
+      ]
+    },
+    {
+      "id": "route-opt-2",
+      "name": "Old Mumbai-Pune Highway (Old NH 48 via Ghat)",
+      "distance_km": 138.2,
+      "duration_hours": 3.65,
+      "fuel_liters": 51.2,
+      "fuel_uncertainty_pct": 6.5,
+      "co2_kg": 135.2,
+      "cost_inr": 5450,
+      "risk_score": 0.64,
+      "pareto_optimal": false,
+      "toll_charges_inr": 240,
+      "average_speed_kmh": 37.8,
+      "weather_condition": "Dense fog in Khandala, heavy truck braking zones, 24°C",
+      "highlight_reason": "Dominated candidate: shorter distance but severe grade drag and climate risk",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [73.8443, 18.6275],
+          [73.8050, 18.6480],
+          [73.7250, 18.6920],
+          [73.6640, 18.7210],
+          [73.5780, 18.7420],
+          [73.4890, 18.7510],
+          [73.4150, 18.7610],
+          [73.3610, 18.7750],
+          [73.3280, 18.8020],
+          [73.2710, 18.8390],
+          [73.2100, 18.8950],
+          [73.1250, 18.9680],
+          [73.0600, 18.9620],
+          [72.9850, 18.9550],
+          [72.9514, 18.9482]
+        ]
+      },
+      "segments": [
+        {
+          "id": "seg-2-1",
+          "start_coord": [73.8443, 18.6275],
+          "end_coord": [73.6640, 18.7210],
+          "distance_km": 26.0,
+          "risk_score": 0.22,
+          "risk_level": "low",
+          "hazard_type": "Dense commuter traffic near Dehu Road",
+          "elevation_change_m": -20,
+          "gradient_pct": 1.2
+        },
+        {
+          "id": "seg-2-2",
+          "start_coord": [73.6640, 18.7210],
+          "end_coord": [73.4150, 18.7610],
+          "distance_km": 39.4,
+          "risk_score": 0.48,
+          "risk_level": "medium",
+          "hazard_type": "Congested semi-urban market crossings",
+          "elevation_change_m": 110,
+          "gradient_pct": 3.4
+        },
+        {
+          "id": "seg-2-3",
+          "start_coord": [73.4150, 18.7610],
+          "end_coord": [73.2710, 18.8390],
+          "distance_km": 24.8,
+          "risk_score": 0.82,
+          "risk_level": "high",
+          "hazard_type": "Steep 7.2% Ghat switchbacks, runaway brake risk & fog",
+          "elevation_change_m": -430,
+          "gradient_pct": 7.2
+        },
+        {
+          "id": "seg-2-4",
+          "start_coord": [73.2710, 18.8390],
+          "end_coord": [72.9514, 18.9482],
+          "distance_km": 48.0,
+          "risk_score": 0.38,
+          "risk_level": "medium",
+          "hazard_type": "Panvel industrial bottleneck",
+          "elevation_change_m": -30,
+          "gradient_pct": 0.5
+        }
+      ]
+    },
+    {
+      "id": "route-opt-3",
+      "name": "State Highway 54 via Karjat - Panvel Corridor",
+      "distance_km": 154.0,
+      "duration_hours": 3.35,
+      "fuel_liters": 46.5,
+      "fuel_uncertainty_pct": 4.1,
+      "co2_kg": 122.8,
+      "cost_inr": 5120,
+      "risk_score": 0.32,
+      "pareto_optimal": true,
+      "toll_charges_inr": 180,
+      "average_speed_kmh": 46.0,
+      "weather_condition": "Partly cloudy, low crosswinds, 27°C",
+      "highlight_reason": "Pareto frontier member: lowest financial toll cost with balanced fuel economy",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [73.8443, 18.6275],
+          [73.7900, 18.6600],
+          [73.7100, 18.7150],
+          [73.6400, 18.7650],
+          [73.5500, 18.8200],
+          [73.4600, 18.8700],
+          [73.3800, 18.9100],
+          [73.3200, 18.9150],
+          [73.2400, 18.9450],
+          [73.1600, 18.9700],
+          [73.0800, 18.9800],
+          [73.0100, 18.9600],
+          [72.9514, 18.9482]
+        ]
+      },
+      "segments": [
+        {
+          "id": "seg-3-1",
+          "start_coord": [73.8443, 18.6275],
+          "end_coord": [73.6400, 18.7650],
+          "distance_km": 32.0,
+          "risk_score": 0.18,
+          "risk_level": "low",
+          "hazard_type": "Smooth multi-lane bypass",
+          "elevation_change_m": -15,
+          "gradient_pct": 0.9
+        },
+        {
+          "id": "seg-3-2",
+          "start_coord": [73.6400, 18.7650],
+          "end_coord": [73.3800, 18.9100],
+          "distance_km": 46.0,
+          "risk_score": 0.35,
+          "risk_level": "medium",
+          "hazard_type": "Moderate rolling terrain via Karjat foothills",
+          "elevation_change_m": -180,
+          "gradient_pct": 2.4
+        },
+        {
+          "id": "seg-3-3",
+          "start_coord": [73.3800, 18.9100],
+          "end_coord": [73.1600, 18.9700],
+          "distance_km": 38.0,
+          "risk_score": 0.28,
+          "risk_level": "low",
+          "hazard_type": "Two-lane rural connector with good sightlines",
+          "elevation_change_m": -120,
+          "gradient_pct": 1.1
+        },
+        {
+          "id": "seg-3-4",
+          "start_coord": [73.1600, 18.9700],
+          "end_coord": [72.9514, 18.9482],
+          "distance_km": 38.0,
+          "risk_score": 0.25,
+          "risk_level": "low",
+          "hazard_type": "Navi Mumbai port arterial connection",
+          "elevation_change_m": -25,
+          "gradient_pct": 0.3
+        }
+      ]
+    }
+  ],
+  "pareto_frontier": ["route-opt-1", "route-opt-3"],
+  "explainability": {
+    "recommendation_narrative": "Route 1 (Yashwantrao Chavan Expressway) achieves the optimal multi-objective score. Although it carries a higher toll (₹620 vs ₹240), it yields a net 12.5% fuel reduction (44.8L vs 51.2L) and saves 17.0 kg CO2 compared to the old highway, by eliminating severe 7.2% Ghat gradient climbs and stop-and-go thermal cycling.",
+    "trade_offs": [
+      "Expressway (Route 1) cuts 48 minutes of transit time at an added toll delta of ₹380.",
+      "Route 2 has 4.3 km shorter odometer distance but consumes 6.4 L more fuel due to Khandala Ghat gradient.",
+      "Route 3 provides the lowest financial cost (₹5,120) with modest time penalty (+30 min vs Route 1)."
+    ],
+    "shap_values": [
+      {
+        "feature": "Road Gradient Profile",
+        "impact": -0.38,
+        "description": "Gradual expressway grades (-0.38 impact) minimize aerodynamic and uphill throttle surge."
+      },
+      {
+        "feature": "Stop-and-Go Congestion",
+        "impact": -0.27,
+        "description": "Uninterrupted 6-lane flow averts 18 transient braking cycles identified on Old NH48."
+      },
+      {
+        "feature": "Cargo Payload (18.5t)",
+        "impact": 0.22,
+        "description": "Payload adds base roll resistance equally across options; handled best by steady speeds."
+      },
+      {
+        "feature": "Weather & Fog Hazard",
+        "impact": -0.19,
+        "description": "Bhatan bypass avoids dense fog cloud deck concentrated on Khandala ridge."
+      },
+      {
+        "feature": "Toll Expense Weight",
+        "impact": 0.14,
+        "description": "Toll cost slightly offsets economic score but is offset 2.3x by diesel savings."
+      }
+    ],
+    "counterfactual": {
+      "description": "Reducing cargo payload from 18.5 tons to 14.8 tons (-20%) would save approximately 5.8 litres of diesel and eliminate 15.3 kg of CO2 on this corridor.",
+      "fuel_saved_liters": 5.8,
+      "co2_reduced_kg": 15.3,
+      "parameter_adjusted": "Cargo Payload Weight",
+      "percent_change": -20
+    }
+  },
+  "departure_analysis": [
+    {
+      "time_slot": "04:00 - 06:00",
+      "departure_hour": "04:00",
+      "co2_kg": 112.4,
+      "risk_score": 0.15,
+      "is_recommended": true,
+      "delay_probability_pct": 4.2,
+      "traffic_level": "low"
+    },
+    {
+      "time_slot": "06:00 - 08:00",
+      "departure_hour": "06:00",
+      "co2_kg": 118.2,
+      "risk_score": 0.18,
+      "is_recommended": false,
+      "delay_probability_pct": 11.5,
+      "traffic_level": "moderate"
+    },
+    {
+      "time_slot": "08:00 - 10:00",
+      "departure_hour": "08:00",
+      "co2_kg": 131.0,
+      "risk_score": 0.42,
+      "is_recommended": false,
+      "delay_probability_pct": 34.0,
+      "traffic_level": "heavy"
+    },
+    {
+      "time_slot": "10:00 - 12:00",
+      "departure_hour": "10:00",
+      "co2_kg": 124.5,
+      "risk_score": 0.31,
+      "is_recommended": false,
+      "delay_probability_pct": 19.8,
+      "traffic_level": "moderate"
+    },
+    {
+      "time_slot": "14:00 - 16:00",
+      "departure_hour": "14:00",
+      "co2_kg": 120.1,
+      "risk_score": 0.22,
+      "is_recommended": false,
+      "delay_probability_pct": 14.2,
+      "traffic_level": "moderate"
+    },
+    {
+      "time_slot": "20:00 - 22:00",
+      "departure_hour": "20:00",
+      "co2_kg": 114.8,
+      "risk_score": 0.26,
+      "is_recommended": false,
+      "delay_probability_pct": 8.0,
+      "traffic_level": "low"
+    }
+  ],
+  "data_status": {
+    "routes": "simulated",
+    "weather": "simulated",
+    "fuel_model": "simulated-trained",
+    "is_mock": true
+  }
+}
+

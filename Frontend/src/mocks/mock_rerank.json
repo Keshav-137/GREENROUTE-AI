@@ -1,0 +1,51 @@
+{
+  "_comment": "DEMONSTRATION MOCK DATA - Re-ranking calculation response",
+  "trip_id": "trip_demo_pune_mumbai_001",
+  "recommended_route_id": "route-opt-1",
+  "rankings": [
+    {
+      "route_id": "route-opt-1",
+      "rank": 1,
+      "total_score": 0.884,
+      "score_breakdown": {
+        "time": 0.94,
+        "fuel": 0.89,
+        "co2": 0.89,
+        "cost": 0.72,
+        "risk": 0.92
+      }
+    },
+    {
+      "route_id": "route-opt-3",
+      "rank": 2,
+      "total_score": 0.792,
+      "score_breakdown": {
+        "time": 0.76,
+        "fuel": 0.84,
+        "co2": 0.84,
+        "cost": 0.95,
+        "risk": 0.81
+      }
+    },
+    {
+      "route_id": "route-opt-2",
+      "rank": 3,
+      "total_score": 0.528,
+      "score_breakdown": {
+        "time": 0.65,
+        "fuel": 0.58,
+        "co2": 0.58,
+        "cost": 0.84,
+        "risk": 0.36
+      }
+    }
+  ],
+  "recommendation_narrative": "Based on updated multi-criteria optimization weights, Route 1 (Yashwantrao Chavan Expressway) retains Rank 1 due to superior transit efficiency and weather safety. Route 3 serves as the secondary choice if cost minimization weight exceeds 45%.",
+  "data_status": {
+    "routes": "simulated",
+    "weather": "simulated",
+    "fuel_model": "simulated-trained",
+    "is_mock": true
+  }
+}
+
