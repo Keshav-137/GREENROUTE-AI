@@ -1,49 +1,344 @@
-# GREENROUTE-AI
+# GreenRoute AI
 
-## Backend services
+Climate-aware freight route optimization for Maharashtra logistics corridors.
+GreenRoute AI compares real route alternatives, fuel use, cost, CO2, delivery
+time, and monsoon-related climate risk.
 
-The backend is in [`Backend/`](./Backend/). It exposes the frontend-compatible
-FastAPI endpoints and caches all route enrichment responses on disk. Start it with
-`pip install -r Backend/requirements.txt` followed by
-`uvicorn app.main:app --app-dir Backend --reload`, then run the frontend with
-`npm run dev` from [`Frontend/`](./Frontend/).
+## What the project does
 
-For live diesel pricing, copy `Backend/.env.example` to `Backend/.env`, set
-`FUEL_API_KEY`, and load those environment variables before starting Uvicorn.
-Never commit the key. If the provider is unavailable, the API uses the configured
-fallback price and reports the fuel-price source in the route response.
+For a trip request, the system:
 
-To train the physics-informed model from the repository data:
+1. Validates origin, destination, vehicle, payload, departure, and deadline.
+2. Fetches up to three real route alternatives:
+   - OpenRouteService `driving-hgv` when `ORS_API_KEY` is configured.
+   - Public OSRM alternatives otherwise.
+   - Cached responses are reused before making a new request.
+3. Enriches route points with elevation and gradient.
+4. Fetches hourly Open-Meteo precipitation, temperature, and wind.
+5. Flags flood-prone and landslide/ghat segments.
+6. Estimates fuel with a physics baseline and optional trained XGBoost residual.
+7. Produces a conformal uncertainty interval when trained artifacts exist.
+8. Calculates climate risk for every segment and route.
+9. Selects the Pareto front using NSGA-II non-dominated sorting.
+10. Returns SHAP values, counterfactuals, and an optional Gemini/Claude narrative.
+
+The numeric calculations never depend on the LLM. The LLM only rewrites
+structured results into plain language.
+
+## Project structure
+
+```text
+GreenRouteAI/
+├── Backend/
+│   ├── app/
+│   │   ├── main.py                 # FastAPI API
+│   │   ├── schemas.py               # Pydantic request models
+│   │   ├── cache.py                 # SQLite disk cache
+│   │   ├── ml/
+│   │   │   ├── physics.py           # Physics fuel baseline
+│   │   │   ├── model.py             # XGBoost residual + SHAP + intervals
+│   │   │   └── explainer.py         # Optional Gemini/Claude wording
+│   │   ├── optimizer/pareto.py      # Pareto/NSGA-II ranking
+│   │   └── services/
+│   │       ├── routing.py           # ORS/OSRM route alternatives
+│   │       ├── elevation.py         # Open-Meteo elevation + gradients
+│   │       ├── weather.py           # Open-Meteo forecast
+│   │       ├── hazards.py           # Flood and landslide flags
+│   │       ├── segmenter.py         # Segment-level feature assembly
+│   │       └── fuel_prices.py       # India API fuel prices
+│   ├── scripts/train_model.py       # Train model artifacts
+│   ├── scripts/precache.py          # Warm demo cache
+│   ├── demo_scenarios.yaml          # Video/demo inputs
+│   ├── vehicles.yaml                # Vehicle parameters
+│   ├── config.yaml                  # Fuel, toll, congestion settings
+│   ├── emission_factors.yaml        # Diesel CO2 factor
+│   ├── model_card.md                # Model limitations and intended use
+│   ├── requirements.txt
+│   └── .env.example
+├── Data/                            # Existing project datasets
+├── Frontend/                        # React + Vite + TypeScript UI
+└── docker-compose.yml
+```
+
+## Requirements
+
+- Python 3.11+
+- Node.js 18+
+- npm
+- Internet access for live routing and weather providers
+
+## Backend setup on Windows
+
+From the repository root:
 
 ```powershell
-pip install -r Backend\requirements.txt
-python Backend\scripts\train_model.py
+py -3.11 -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip
+python -m pip install -r Backend\requirements.txt
 ```
 
-This writes ignored model artifacts under `Backend/artifacts/`. Configure
-`ORS_API_KEY` for truck-aware OpenRouteService routes; without it the backend
-uses public OSRM alternatives. Configure `ANTHROPIC_API_KEY` only if LLM wording
-is desired; the numeric result and SHAP values never come from the LLM.
-Google AI Studio can be used instead by setting `GEMINI_API_KEY` and
-`GEMINI_MODEL` in `Backend/.env`. Do not paste either key into source control.
+If PowerShell blocks activation, run the backend with the virtual environment
+interpreter directly:
+
+```powershell
+.\.venv\Scripts\python.exe -m pip install -r Backend\requirements.txt
+```
+
+## Environment configuration
+
+Create a local environment file:
+
+```powershell
+Copy-Item Backend\.env.example Backend\.env
+```
+
+Example configuration:
+
+```env
+# India fuel price API
+FUEL_API_KEY=replace_with_rotated_india_api_key
+FUEL_API_BASE_URL=https://fuel.indianapi.in
+
+# Truck-aware routing. Without this, OSRM is used.
+ORS_API_KEY=replace_with_openrouteservice_key
+
+# Optional LLM wording. Use either Gemini or Anthropic.
+GEMINI_API_KEY=replace_with_google_ai_studio_key
+GEMINI_MODEL=gemini-2.0-flash
+ANTHROPIC_API_KEY=
+ANTHROPIC_MODEL=claude-3-5-haiku-latest
+
+# Fallback when the fuel provider is unavailable.
+DIESEL_PRICE_INR_PER_LITRE=94.0
+```
+
+Never commit `Backend/.env`. API keys shared in screenshots, chat, or commits
+must be revoked and replaced.
+
+## Train the model
+
+The repository includes measured telematics fuel records in
+`Data/06_Fuel_Consumption/cleaned_fuel_records.csv`.
+
+Run:
+
+```powershell
+.\.venv\Scripts\python.exe Backend\scripts\train_model.py
+```
+
+The training script:
+
+- Builds physics-baseline fuel estimates.
+- Trains an XGBoost residual model.
+- Uses a held-out calibration split.
+- Writes a 90% conformal residual interval.
+- Saves metrics and model artifacts under `Backend/artifacts/`.
+
+Generated artifacts:
 
 ```text
-backend/app/services/
-  routing.py     # get_routes(origin, dest, vehicle) -> list[Route]
-  elevation.py   # add_gradient(route) -> segments with grade
-  weather.py     # get_weather(points, hours) -> dict[(point,hour)] -> {rain,temp,wind}
-  hazards.py     # flood_flag(segment), landslide_flag(segment)
-  segmenter.py   # split route into 0.5-2 km segments with all fields attached
+Backend/artifacts/
+├── fuel_residual.json
+├── conformal_q.json
+└── metrics.json
 ```
 
-## Data
+The artifacts directory is ignored by Git. Until training is run, the API
+explicitly reports `physics-baseline` and uses a conservative fallback interval.
+
+## Start the backend
+
+```powershell
+.\.venv\Scripts\python.exe -m uvicorn app.main:app `
+  --app-dir Backend --host 0.0.0.0 --port 8000 --reload
+```
+
+Health check:
 
 ```text
-Backend/
-  app/services/  # cached routing, elevation, weather, hazards and segmentation
-  app/main.py    # /api/v1/plan, /rerank, /health
-  scripts/precache.py
-data/
-  cache/         # SQLite request cache
-  geo/           # hazard and DEM layers when supplied
+http://localhost:8000/api/v1/health
 ```
+
+OpenAPI documentation:
+
+```text
+http://localhost:8000/docs
+```
+
+## Start the frontend
+
+In a second terminal:
+
+```powershell
+Set-Location Frontend
+npm ci
+Copy-Item .env.example .env
+npm run dev
+```
+
+For the real backend, set this in `Frontend/.env`:
+
+```env
+VITE_API_BASE_URL=http://localhost:8000
+VITE_USE_MOCK_DATA=false
+```
+
+Open the URL printed by Vite, normally `http://localhost:3000`.
+
+Build validation:
+
+```powershell
+Set-Location Frontend
+npm run build
+```
+
+## API endpoints
+
+### `GET /api/v1/health`
+
+Returns API version and provider status.
+
+### `POST /api/v1/plan`
+
+Creates a route plan. Example body:
+
+```json
+{
+  "origin": {
+    "name": "Pune Freight Hub, Bhosari MIDC",
+    "lat": 18.6275,
+    "lon": 73.8443
+  },
+  "destination": {
+    "name": "JNPT Container Port, Navi Mumbai",
+    "lat": 18.9482,
+    "lon": 72.9514
+  },
+  "vehicle_type": "medium_truck",
+  "cargo_load_tons": 2.5,
+  "departure_time": "2026-07-15T08:00:00+05:30",
+  "deadline": "2026-07-15T18:00:00+05:30",
+  "priority_weights": {
+    "time": 0.2,
+    "fuel": 0.2,
+    "co2": 0.2,
+    "cost": 0.2,
+    "risk": 0.2
+  }
+}
+```
+
+The response includes route geometry, segment gradients, weather, hazards,
+fuel intervals, CO2, cost, Pareto flags, SHAP values, counterfactuals,
+departure analysis, and `data_status`.
+
+### `POST /api/v1/rerank`
+
+Reranks the stored plan when the frontend priority sliders change.
+
+### `GET /api/v1/hazards.geojson`
+
+Returns curated Maharashtra waterlogging/flood locations as GeoJSON.
+
+### `GET /api/v1/report/{trip_id}`
+
+Downloads the selected trip's carbon audit report.
+
+## Data status
+
+Every response identifies whether data is live, cached, or simulated:
+
+- `live`: fetched successfully from an external provider.
+- `cached`: returned from the SQLite request cache.
+- `simulated`: deterministic fallback used when a provider or key is unavailable.
+- `fuel_model: calibrated`: trained XGBoost and conformal artifacts are present.
+- `fuel_model: simulated-trained`: training artifacts are not installed yet.
+
+Cache location:
+
+```text
+Backend/data/cache/requests.sqlite3
+```
+
+The cache prevents repeated external calls and protects the demo from provider
+timeouts. Do not treat simulated fallback routes or weather as operational data.
+
+## Demo scenarios
+
+`Backend/demo_scenarios.yaml` contains:
+
+1. Pune to Mumbai during monsoon, comparing morning departure times.
+2. Nashik to Pune mandi with a deadline before the auction.
+3. Pune to Mumbai early departure to avoid the rain window.
+
+Warm the cache:
+
+```powershell
+.\.venv\Scripts\python.exe Backend\scripts\precache.py
+```
+
+## Fuel model and risk methodology
+
+### Physics-informed fuel
+
+The baseline uses:
+
+- Total vehicle mass and payload ratio.
+- Rolling resistance.
+- Road gradient and gravity.
+- Aerodynamic drag using drag coefficient and frontal area.
+- Speed and rain adjustments.
+
+XGBoost predicts the residual between measured fuel and the physics baseline.
+Monotonic constraints prevent load and segment length from reducing predicted
+fuel. SHAP explains the residual model when the trained artifact is available.
+
+### Climate risk
+
+Segment risk combines:
+
+- Forecast precipitation severity.
+- Flood-prone/low-lying exposure.
+- Steep ghat and rain-triggered landslide flags.
+- Heat-related conditions where available.
+
+Route risk is:
+
+```text
+0.5 * mean(segment_risk) + 0.5 * max(segment_risk)
+```
+
+### Optimization
+
+The optimizer minimizes:
+
+```text
+time, cost, fuel, CO2, climate risk
+```
+
+Non-dominated routes are marked as the Pareto front. Priority weights only
+choose among the non-dominated candidates; they do not hide the trade-offs.
+
+## Important limitations
+
+- OSRM does not provide truck restrictions; use `ORS_API_KEY` for
+  truck-aware `driving-hgv` routing.
+- Public APIs can rate-limit or fail; cached and simulated fallbacks are
+  intentional and shown in `data_status`.
+- Congestion is a modeled typical-day curve, not live traffic.
+- Climate-risk flags are decision-support indicators, not official warnings.
+- The model is trained on available telematics data and should be validated
+  against the target fleet before operational deployment.
+- The LLM is never trusted to calculate route, fuel, risk, or emissions values.
+
+See [Backend/model_card.md](./Backend/model_card.md) for model scope,
+assumptions, and validation notes.
+
+## Docker
+
+```powershell
+docker compose up --build
+```
+
+The backend is then available at `http://localhost:8000`.
