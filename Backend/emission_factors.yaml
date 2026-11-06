@@ -1,0 +1,4 @@
+diesel:
+  tank_to_wheel_kg_co2_per_litre: 2.68
+  source: "IPCC 2006 Guidelines / MoEFCC Indian diesel factor; corroborated by Data/08_Emission_Factors/emission_factors.csv"
+  note: "Tank-to-wheel direct combustion factor; well-to-wheel is not used for the UI CO2 field."

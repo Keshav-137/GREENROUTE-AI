@@ -1,0 +1,13 @@
+fuel:
+  diesel_price_inr_per_litre: 94.0
+  co2_kg_per_litre: 2.68
+  source: "Data/07_Fuel_Prices/diesel_prices.csv and Data/08_Emission_Factors/emission_factors.csv"
+tolls:
+  expressway_inr: 620
+  old_highway_inr: 180
+  panvel_bypass_inr: 320
+congestion:
+  label: "modeled typical-day curve; not live traffic data"
+  road_class:
+    expressway: [0.82, 0.88, 0.94, 1.08, 1.16, 1.08, 0.96, 0.90]
+    highway: [0.88, 0.92, 0.98, 1.05, 1.12, 1.10, 1.02, 0.96]
