@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import math
+import httpx
 from typing import Any
 
 from app.cache import cache
@@ -13,6 +14,24 @@ def add_gradient(route: dict[str, Any]) -> dict[str, Any]:
         route["points"] = cached
         route["source_elevation"] = "cached"
         return route
+    try:
+        response = httpx.get(
+            "https://api.open-meteo.com/v1/elevation",
+            params={"latitude": ",".join(str(p[0]) for p in route["geometry"]),
+                    "longitude": ",".join(str(p[1]) for p in route["geometry"])},
+            timeout=12,
+        )
+        response.raise_for_status()
+        elevations = response.json().get("elevation", [])
+        if len(elevations) == len(route["geometry"]):
+            points = [{"lat": lat, "lon": lon, "elevation_m": round(float(elevation), 1)}
+                      for (lat, lon), elevation in zip(route["geometry"], elevations)]
+            cache.set(key, points)
+            route["points"] = points
+            route["source_elevation"] = "live"
+            return route
+    except (httpx.HTTPError, ValueError, TypeError, KeyError):
+        pass
     points = []
     for lat, lon in route["geometry"]:
         # Deterministic corridor DEM approximation; external DEM responses use the same schema.

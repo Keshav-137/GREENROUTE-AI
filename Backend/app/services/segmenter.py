@@ -33,6 +33,7 @@ def get_segments(route: dict[str, Any], departure: datetime) -> list[dict[str, A
             "road_class": route["road_class"], "speed_kmh": route["base_speed_kmh"],
             "duration_min": round(distance / max(20, route["base_speed_kmh"]) * 60, 1),
             "rain_mm_h": rain, "temp_c": float(conditions["temp"]), "wind_head_kmh": float(conditions["wind"]),
+            "source": conditions.get("source", "simulated"),
             "risk_score": round(risk, 3), "risk_level": "high" if risk >= .65 else "medium" if risk >= .3 else "low",
             "hazard_type": "Landslide-prone ghat" if slide else "Flood-prone lowland" if flood else None,
         })

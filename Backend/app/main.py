@@ -8,7 +8,11 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response
 
-from app.ml.physics import estimate_fuel, risk_score
+from app.ml.physics import risk_score
+from app.ml.model import explain as explain_fuel
+from app.ml.model import predict_fuel
+from app.ml.explainer import narrative
+from app.optimizer.pareto import rank
 from app.schemas import RerankRequest, TripRequest
 from app.services.elevation import add_gradient
 from app.services.fuel_prices import get_diesel_price
@@ -31,15 +35,15 @@ def _route_candidate(route: dict[str, Any], request: TripRequest, departure: dat
     segments = get_segments(enriched, departure)
     for segment in segments:
         segment["speed_kmh"] *= 0.82 if segment["rain_mm_h"] >= 10 else 1.0
-    fuel_by_segment = estimate_fuel(segments, request.vehicle_type, request.cargo_load_tons * 1000)
-    fuel = sum(fuel_by_segment)
+    fuel_prediction = predict_fuel(segments, request.vehicle_type, request.cargo_load_tons * 1000)
+    fuel = fuel_prediction["total_litres"]
     fuel_price = get_diesel_price("Mumbai")
     duration = sum(s["distance_km"] / max(20, s["speed_kmh"]) for s in segments)
     risk = risk_score(segments)
     return {
         "id": route["id"], "name": route["name"], "distance_km": route["distance_km"],
         "duration_hours": round(duration, 2), "fuel_liters": round(fuel, 1),
-        "fuel_uncertainty_pct": 5.0, "co2_kg": round(fuel * 2.68, 1),
+        "fuel_uncertainty_pct": fuel_prediction["uncertainty_pct"], "co2_kg": round(fuel * 2.68, 1),
         "cost_inr": round(fuel * fuel_price["price_inr_per_litre"] + route["toll_inr"]), "risk_score": risk,
         "pareto_optimal": True, "toll_charges_inr": route["toll_inr"],
         "average_speed_kmh": round(route["distance_km"] / max(duration, .1), 1),
@@ -48,22 +52,23 @@ def _route_candidate(route: dict[str, Any], request: TripRequest, departure: dat
         "elevation_profile": [{"lat": p["lat"], "lon": p["lon"], "elevation_m": p["elevation_m"]}
                              for p in enriched["points"]],
         "segments": segments, "source": route["source"], "fuel_price_source": fuel_price["source"],
+        "fuel_model_source": fuel_prediction["model_source"],
+        "fuel_interval_litres": [fuel_prediction["lo_litres"], fuel_prediction["hi_litres"]],
     }
 
 
 def _rank(candidates: list[dict[str, Any]], weights: dict[str, float]) -> list[dict[str, Any]]:
-    keys = ("duration_hours", "cost_inr", "fuel_liters", "co2_kg", "risk_score")
-    values = [[float(c[k]) for k in keys] for c in candidates]
-    mins = [min(row[i] for row in values) for i in range(len(keys))]
-    spans = [max(row[i] for row in values) - mins[i] or 1 for i in range(len(keys))]
-    normalized = [[(row[i] - mins[i]) / spans[i] for i in range(len(keys))] for row in values]
-    weight_values = [weights.get(k, 0.2) for k in ("time", "cost", "fuel", "co2", "risk")]
-    total = sum(weight_values) or 1
-    weight_values = [w / total for w in weight_values]
-    for candidate, row in zip(candidates, normalized):
-        candidate["score"] = round(sum(x * w for x, w in zip(row, weight_values)), 4)
-        candidate["pareto_optimal"] = True
-    return sorted(candidates, key=lambda item: item["score"])
+    objectives = {
+        candidate["id"]: {
+            "time_min": candidate["duration_hours"] * 60,
+            "cost_inr": candidate["cost_inr"], "fuel_l": candidate["fuel_liters"],
+            "co2_kg": candidate["co2_kg"], "risk": candidate["risk_score"],
+        } for candidate in candidates
+    }
+    ranked = []
+    for candidate in candidates:
+        ranked.append({**candidate, **objectives[candidate["id"]]})
+    return rank(ranked, weights)
 
 
 def _departure_analysis(request: TripRequest, routes: list[dict[str, Any]]) -> list[dict[str, Any]]:
@@ -103,6 +108,7 @@ def plan(request: TripRequest) -> dict[str, Any]:
     candidates = [_route_candidate(route, request, request.departure_time) for route in routes]
     ranked = _rank(candidates, request.priority_weights)
     recommended = ranked[0]
+    shap_values = explain_fuel(recommended["segments"], request.vehicle_type, request.cargo_load_tons * 1000)
     result = {
         "trip_id": trip_id, "created_at": datetime.now(timezone.utc).isoformat(),
         "origin": request.origin.model_dump(), "destination": request.destination.model_dump(),
@@ -111,18 +117,17 @@ def plan(request: TripRequest) -> dict[str, Any]:
         "cargo_load_tons": request.cargo_load_tons, "recommended_route_id": recommended["id"],
         "routes": candidates, "pareto_frontier": [r["id"] for r in ranked],
         "explainability": {
-            "recommendation_narrative": (
-                f"Leaving at {request.departure_time.hour if request.departure_time.hour <= 12 else request.departure_time.hour - 12} "
-                f"{'AM' if request.departure_time.hour < 12 else 'PM'} balances time, fuel and monsoon risk. "
-                f"{recommended['name']} is the recommended option."
-            ),
+            "recommendation_narrative": narrative(recommended, candidates),
             "trade_offs": ["Risk uses forecast rain and terrain flags.", "Traffic curve is modeled, not live."],
-            "shap_values": [], "counterfactual": {"description": "20% less payload", "fuel_saved_liters": round(recommended["fuel_liters"] * .05, 1),
+            "shap_values": shap_values, "counterfactual": {"description": "20% less payload", "fuel_saved_liters": round(recommended["fuel_liters"] * .05, 1),
                                                    "co2_reduced_kg": round(recommended["co2_kg"] * .05, 1),
                                                    "parameter_adjusted": "cargo_load_tons", "percent_change": -20},
         },
         "departure_analysis": _departure_analysis(request, routes),
-        "data_status": {"routes": "simulated", "weather": "simulated", "fuel_model": "simulated-trained", "is_mock": False},
+        "data_status": {"routes": "live" if all(r["source"] in {"live", "cached"} for r in routes) else "simulated",
+                        "weather": "live" if all(s.get("source") in {"live", "cached"} for r in candidates for s in r["segments"]) else "simulated",
+                        "fuel_model": "calibrated" if recommended["fuel_model_source"] == "physics+xgboost-residual" else "simulated-trained",
+                        "is_mock": False},
     }
     TRIPS[trip_id] = result
     return result

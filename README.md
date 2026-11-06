@@ -13,6 +13,18 @@ For live diesel pricing, copy `Backend/.env.example` to `Backend/.env`, set
 Never commit the key. If the provider is unavailable, the API uses the configured
 fallback price and reports the fuel-price source in the route response.
 
+To train the physics-informed model from the repository data:
+
+```powershell
+pip install -r Backend\requirements.txt
+python Backend\scripts\train_model.py
+```
+
+This writes ignored model artifacts under `Backend/artifacts/`. Configure
+`ORS_API_KEY` for truck-aware OpenRouteService routes; without it the backend
+uses public OSRM alternatives. Configure `ANTHROPIC_API_KEY` only if LLM wording
+is desired; the numeric result and SHAP values never come from the LLM.
+
 ```text
 backend/app/services/
   routing.py     # get_routes(origin, dest, vehicle) -> list[Route]

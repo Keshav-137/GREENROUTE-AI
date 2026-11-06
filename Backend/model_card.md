@@ -9,10 +9,10 @@ critical dispatch or flood warning system.
 ## Fuel estimate
 
 Fuel is a vectorized physics baseline with load, grade, rain and speed adjustments.
-The current checked-in demo uses a deterministic correction-free baseline so the
-demo is reproducible; an XGBoost residual and split-conformal calibration can be
-added once measured trip labels are available. The UI uncertainty field is therefore
-an explicitly conservative demo bound, not a validated confidence interval.
+`scripts/train_model.py` trains an XGBoost residual on the checked-in telematics
+fuel records, using a held-out calibration split to write `artifacts/conformal_q.json`.
+Run it before production/demo claims of calibrated ML. If the artifact is absent,
+the API explicitly reports `physics-baseline` and uses a conservative fallback interval.
 
 ## Climate risk
 
