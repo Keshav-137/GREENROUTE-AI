@@ -24,6 +24,8 @@ This writes ignored model artifacts under `Backend/artifacts/`. Configure
 `ORS_API_KEY` for truck-aware OpenRouteService routes; without it the backend
 uses public OSRM alternatives. Configure `ANTHROPIC_API_KEY` only if LLM wording
 is desired; the numeric result and SHAP values never come from the LLM.
+Google AI Studio can be used instead by setting `GEMINI_API_KEY` and
+`GEMINI_MODEL` in `Backend/.env`. Do not paste either key into source control.
 
 ```text
 backend/app/services/
