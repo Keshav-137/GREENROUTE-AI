@@ -11,6 +11,7 @@ from fastapi.responses import Response
 from app.ml.physics import estimate_fuel, risk_score
 from app.schemas import RerankRequest, TripRequest
 from app.services.elevation import add_gradient
+from app.services.fuel_prices import get_diesel_price
 from app.services.hazards import hazard_geojson
 from app.services.routing import get_routes
 from app.services.segmenter import get_segments
@@ -32,20 +33,21 @@ def _route_candidate(route: dict[str, Any], request: TripRequest, departure: dat
         segment["speed_kmh"] *= 0.82 if segment["rain_mm_h"] >= 10 else 1.0
     fuel_by_segment = estimate_fuel(segments, request.vehicle_type, request.cargo_load_tons * 1000)
     fuel = sum(fuel_by_segment)
+    fuel_price = get_diesel_price("Mumbai")
     duration = sum(s["distance_km"] / max(20, s["speed_kmh"]) for s in segments)
     risk = risk_score(segments)
     return {
         "id": route["id"], "name": route["name"], "distance_km": route["distance_km"],
         "duration_hours": round(duration, 2), "fuel_liters": round(fuel, 1),
         "fuel_uncertainty_pct": 5.0, "co2_kg": round(fuel * 2.68, 1),
-        "cost_inr": round(fuel * 94 + route["toll_inr"]), "risk_score": risk,
+        "cost_inr": round(fuel * fuel_price["price_inr_per_litre"] + route["toll_inr"]), "risk_score": risk,
         "pareto_optimal": True, "toll_charges_inr": route["toll_inr"],
         "average_speed_kmh": round(route["distance_km"] / max(duration, .1), 1),
         "weather_condition": "Heavy monsoon rain near Lonavala" if risk >= .3 else "Light rain / partly cloudy",
         "geometry": {"type": "LineString", "coordinates": [[p[1], p[0]] for p in route["geometry"]]},
         "elevation_profile": [{"lat": p["lat"], "lon": p["lon"], "elevation_m": p["elevation_m"]}
                              for p in enriched["points"]],
-        "segments": segments, "source": route["source"],
+        "segments": segments, "source": route["source"], "fuel_price_source": fuel_price["source"],
     }
 
 
@@ -83,7 +85,8 @@ def _departure_analysis(request: TripRequest, routes: list[dict[str, Any]]) -> l
 @app.get("/api/v1/health")
 def health() -> dict[str, Any]:
     return {"status": "healthy", "version": app.version,
-            "services": {"routing": "ready", "weather": "cached-demo", "elevation": "cached-demo"}}
+            "services": {"routing": "ready", "weather": "cached-demo", "elevation": "cached-demo",
+                         "fuel_prices": "configured" if get_diesel_price()["source"] != "simulated" else "fallback"}}
 
 
 @app.get("/api/v1/hazards.geojson")

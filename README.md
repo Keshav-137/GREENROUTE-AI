@@ -8,6 +8,11 @@ FastAPI endpoints and caches all route enrichment responses on disk. Start it wi
 `uvicorn app.main:app --app-dir Backend --reload`, then run the frontend with
 `npm run dev` from [`Frontend/`](./Frontend/).
 
+For live diesel pricing, copy `Backend/.env.example` to `Backend/.env`, set
+`FUEL_API_KEY`, and load those environment variables before starting Uvicorn.
+Never commit the key. If the provider is unavailable, the API uses the configured
+fallback price and reports the fuel-price source in the route response.
+
 ```text
 backend/app/services/
   routing.py     # get_routes(origin, dest, vehicle) -> list[Route]
