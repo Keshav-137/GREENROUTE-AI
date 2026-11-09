@@ -24,7 +24,7 @@ def narrative(recommended: dict[str, Any], alternatives: list[dict[str, Any]]) -
         from anthropic import Anthropic
         client = Anthropic(api_key=api_key)
         response = client.messages.create(
-            model=os.getenv("ANTHROPIC_MODEL", "claude-3-5-haiku-latest"),
+            model=os.getenv("ANTHROPIC_MODEL", "claude-haiku-5-5"),
             max_tokens=120,
             system="Rewrite the supplied structured route facts in one plain sentence. Never invent or recalculate numbers.",
             messages=[{"role": "user", "content": str({"recommended": recommended, "alternatives": alternatives})}],
@@ -40,7 +40,7 @@ def _gemini_narrative(
     alternatives: list[dict[str, Any]],
     fallback: str,
 ) -> str:
-    model = os.getenv("GEMINI_MODEL", "gemini-2.0-flash")
+    model = os.getenv("GEMINI_MODEL", "gemini-3.8-flash")
     prompt = (
         "Rewrite the supplied structured route facts in one plain sentence. "
         "Never invent, modify, or recalculate numbers. Return only the sentence.\n"

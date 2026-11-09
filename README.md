@@ -180,9 +180,9 @@ ORS_API_KEY=replace_with_openrouteservice_key
 
 # Optional LLM wording. Use either Gemini or Anthropic.
 GEMINI_API_KEY=replace_with_google_ai_studio_key
-GEMINI_MODEL=gemini-2.0-flash
+GEMINI_MODEL=gemini-3.8-flash
 ANTHROPIC_API_KEY=
-ANTHROPIC_MODEL=claude-3-5-haiku-latest
+ANTHROPIC_MODEL=claude-haiku-5-5
 
 # Fallback when the fuel provider is unavailable.
 DIESEL_PRICE_INR_PER_LITRE=94.0
@@ -258,6 +258,18 @@ The departure analysis provides a before/after comparison on the same route,
 truck, and payload: the 08:00 baseline is compared with the recommended 05:00
 slot, showing modeled fuel saved and risk reduction. Congestion is explicitly
 modeled typical-day traffic, not live traffic.
+
+The fallback route catalogue uses the verified Pune–Mumbai corridor names
+`Expressway (NH 48) / Yashwantrao Chavan`, `Old NH 48 via Khandala Ghat`, and
+`SH 54 via Karjat-Panvel`. When OSRM or OpenRouteService is available, the
+returned geometry and provider route alternatives replace the fallback
+catalogue; route names are not hard-coded onto provider results. The ₹620
+expressway toll and the ₹94/L fallback diesel price produce the example
+₹4,831.20 fuel-plus-toll estimate for 44.8 L; ₹5,840 is not used.
+
+The report labels the calculation as **GLEC Framework v3.0 / IPCC Tier 2
+methodology**. This is a calculation-method reference, not a claim that the
+application or a carrier has received GLEC certification.
 
 ## Data provenance
 

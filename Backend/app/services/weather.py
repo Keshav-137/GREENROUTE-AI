@@ -35,7 +35,7 @@ def get_weather(
             "latitude": ",".join(str(p["lat"]) for p in points),
             "longitude": ",".join(str(p["lon"]) for p in points),
             "hourly": "precipitation,temperature_2m,wind_speed_10m,visibility",
-            "timezone": "UTC",
+            "timezone": "Asia/Kolkata",
         }
         if historical:
             params["start_date"] = min(h.date() for h in hours).isoformat()
@@ -54,7 +54,7 @@ def get_weather(
         for point, weather_payload in zip(points, payloads):
             hourly = weather_payload["hourly"]
             for hour in hours:
-                iso_hour = hour.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:00")
+                iso_hour = hour.strftime("%Y-%m-%dT%H:00")
                 if iso_hour not in hourly["time"]:
                     continue
                 index = hourly["time"].index(iso_hour)

@@ -36,7 +36,8 @@ def _route_candidate(route: dict[str, Any], request: TripRequest, departure: dat
     for segment in segments:
         segment["speed_kmh"] *= 0.82 if segment["rain_mm_h"] >= 10 else 1.0
     fuel_prediction = predict_fuel(segments, request.vehicle_type, request.cargo_load_tons * 1000)
-    fuel_raw = fuel_prediction["total_litres_raw"]
+    congestion_penalty = 0.08 if 7 <= departure.hour < 10 else 0.03 if 10 <= departure.hour < 18 else 0.0
+    fuel_raw = fuel_prediction["total_litres_raw"] * (1 + congestion_penalty)
     fuel = fuel_prediction["total_litres"]
     fuel_price = get_diesel_price("Mumbai")
     duration = sum(s["distance_km"] / max(20, s["speed_kmh"]) for s in segments)
@@ -55,7 +56,11 @@ def _route_candidate(route: dict[str, Any], request: TripRequest, departure: dat
         "segments": segments, "source": route["source"], "fuel_price_source": fuel_price["source"],
         "elevation_source": enriched["source_elevation"],
         "fuel_model_source": fuel_prediction["model_source"],
-        "fuel_interval_litres": [fuel_prediction["lo_litres"], fuel_prediction["hi_litres"]],
+        "congestion_penalty_pct": round(congestion_penalty * 100, 1),
+        "fuel_interval_litres": [
+            round(fuel_prediction["lo_litres"] * (1 + congestion_penalty), 2),
+            round(fuel_prediction["hi_litres"] * (1 + congestion_penalty), 2),
+        ],
         "fuel_liters_raw": fuel_raw,
     }
 
