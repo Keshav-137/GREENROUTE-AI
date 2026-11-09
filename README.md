@@ -67,6 +67,14 @@ GreenRouteAI/
 - npm
 - Internet access for live routing and weather providers
 
+## Run procedure
+
+The application has a FastAPI backend and a React/Vite frontend. For a quick
+UI demonstration, the frontend can run independently in mock mode. For live
+route planning, run both services.
+
+### Quick start (mock mode)
+
 From the repository root, install the frontend dependencies and start Vite:
 
 ```powershell
