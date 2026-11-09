@@ -39,6 +39,8 @@ def main() -> None:
     frame["grade_abs"] = frame["grade"].abs()
     frame["road_class"] = 0.0
     frame["wind_head"] = 0.0
+    frame["total_mass"] = frame["total_vehicle_mass_kg"]
+    frame["mean_speed"] = frame["avg_speed_kmh"]
     vehicle_segments = [{
         "distance_km": row.distance_km, "speed_kmh": row.avg_speed_kmh,
         "gradient_pct": row.grade, "rain_mm_h": row.rain_mm_h, "temp_c": row.temp_c,
@@ -65,7 +67,7 @@ def main() -> None:
         high[feature] = high[feature].quantile(.75)
         monotonicity[feature] = bool(np.all(model.predict(high) >= model.predict(low) - 1e-8))
     ARTIFACTS.mkdir(exist_ok=True)
-    model.save_model(ARTIFACTS / "fuel_residual.json")
+    model.get_booster().save_model(ARTIFACTS / "fuel_residual.json")
     (ARTIFACTS / "conformal_q.json").write_text(json.dumps({"q90_litres": float(np.quantile(residuals, .9))}), encoding="utf-8")
     (ARTIFACTS / "metrics.json").write_text(json.dumps({
         "rows": int(len(frame)), "calibration_rows": int(len(x_hold)),

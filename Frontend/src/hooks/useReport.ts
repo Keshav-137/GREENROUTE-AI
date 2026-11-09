@@ -61,7 +61,7 @@ Total Distance      : ${route?.distance_km || 142.5} km
 Estimated Transit   : ${route?.duration_hours || 2.85} hours
 Fuel Consumption    : ${route?.fuel_liters || 44.8} Liters (Uncertainty: ±${route?.fuel_uncertainty_pct || 3.8}%)
 Calculated CO2      : ${route?.co2_kg || 118.2} kg CO2e
-Financial Estimate  : INR ${route?.cost_inr || 5840} (Tolls: INR ${route?.toll_charges_inr || 620})
+Financial Estimate  : INR ${route?.cost_inr || 4831.2} (Tolls: INR ${route?.toll_charges_inr || 620})
 Climate Risk Score  : ${route?.risk_score || 0.18} (Scale: 0-1)
 
 --------------------------------------------------------------------------------

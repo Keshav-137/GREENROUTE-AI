@@ -90,9 +90,9 @@ export const tripService = {
 
       const topRouteName =
         scored[0].id === 'route-opt-1'
-          ? 'Yashwantrao Chavan Expressway'
+          ? 'Expressway (NH 48) / Yashwantrao Chavan'
           : scored[0].id === 'route-opt-3'
-          ? 'State Highway 54 Panvel Corridor'
+          ? 'SH 54 via Karjat-Panvel'
           : 'Old NH 48 Highway';
 
       mockResponse.recommendation_narrative = `With the current priority weights (${weights.time}% Time, ${weights.fuel}% Fuel, ${weights.co2}% CO2, ${weights.cost}% Cost, ${weights.risk}% Risk), ${topRouteName} is ranked #1 with an optimal multi-objective score of ${scored[0].score.toFixed(3)}.`;

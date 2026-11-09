@@ -54,9 +54,9 @@ def get_routes(origin: Any, destination: Any, vehicle: str, departure: datetime 
         return live
 
     specs = [
-        ("route-opt-1", "Yashwantrao Chavan Expressway (NH 48)", 0, "expressway", 620, 52),
+        ("route-opt-1", "Expressway (NH 48) / Yashwantrao Chavan", 0, "expressway", 620, 52),
         ("route-opt-2", "Old NH 48 Highway via Khandala Ghat", 1, "highway", 180, 43),
-        ("route-opt-3", "SH 54 Panvel Bypass Corridor", 2, "highway", 320, 47),
+        ("route-opt-3", "SH 54 via Karjat-Panvel", 2, "highway", 320, 47),
     ]
     routes = []
     for route_id, name, index, road_class, toll, speed in specs:

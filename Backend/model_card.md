@@ -11,8 +11,9 @@ critical dispatch or flood warning system.
 Fuel is a vectorized physics baseline with load, grade, rain and speed adjustments.
 `scripts/train_model.py` trains an XGBoost residual on the checked-in telematics
 fuel records, using a held-out calibration split to write `artifacts/conformal_q.json`.
-Run it before production/demo claims of calibrated ML. If the artifact is absent,
-the API explicitly reports `physics-baseline` and uses a conservative fallback interval.
+Run it before production/demo claims of calibrated ML. If the artifact is absent, the API explicitly reports `physics-baseline` and uses
+a conservative fallback interval. With the artifact installed it reports
+`telematics-calibrated`.
 
 ## Climate risk
 

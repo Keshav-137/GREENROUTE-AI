@@ -234,12 +234,16 @@ measured values to `Backend/artifacts/metrics.json`:
 
 | Metric | Value |
 |---|---:|
-| Clean telematics rows | `metrics.json: rows` |
-| Vehicle classes | `metrics.json: vehicle_classes` |
-| Physics-only MAPE | `metrics.json: physics_mape_pct` |
-| Telematics-calibrated hybrid MAPE | `metrics.json: hybrid_mape_pct` |
-| 90% interval empirical coverage | `metrics.json: interval_coverage_pct` |
-| Monotonicity check | `metrics.json: monotonicity_passed` |
+| Clean telematics rows | 22,672 |
+| Vehicle classes | Heavy Commercial Truck (Class N3 Articulated Combination) |
+| Physics-only MAPE | 34.84% |
+| Telematics-calibrated hybrid MAPE | 33.08% |
+| 90% interval empirical coverage | 89.99% |
+| Monotonicity check | PASS (load, mass, gradient magnitude, rain, segment length) |
+
+These values are copied from the generated `Backend/artifacts/metrics.json`
+(`calibration_rows=6,802`, `q90_litres=14.699`). Re-run training whenever the
+dataset or feature pipeline changes; do not edit the displayed results by hand.
 
 The model is trained on **22,672 cleaned telematics missions** from the TUM
 DT-CARGO dataset. The checked-in records cover one class:
@@ -379,7 +383,7 @@ Every response identifies whether data is live, cached, or simulated:
 - `fuel_model: telematics-calibrated`: trained XGBoost residual and conformal
   artifacts are present.
 - `fuel_model: physics-baseline`: no trained artifact is installed yet.
-- `fuel_model: simulated-trained`: training artifacts are not installed yet.
+- `fuel_model: physics-baseline`: training artifacts are not installed yet.
 
 Cache location:
 
