@@ -84,7 +84,7 @@ Potential CO2 Cut   : ${planData?.explainability.counterfactual.co2_reduced_kg |
 --------------------------------------------------------------------------------
 - Routing Topology  : OpenFreeMap Vector Street Routing
 - Gradient Profile  : Open-Meteo elevation API (Copernicus GLO-90, 90 m)
-- Weather Source    : Open-Meteo forecast or historical archive
+- Weather Source    : Open-Meteo forecast or historical replay from archive
 - Emissions Factor  : 2.68 kg CO2/L High-Speed Diesel (IPCC Tier 2 Framework)
 - Audit Mode        : ${planData?.data_status.is_mock ? 'Demonstration / Mock Pipeline' : 'Live backend pipeline'}
 

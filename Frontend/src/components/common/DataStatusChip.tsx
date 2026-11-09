@@ -22,6 +22,7 @@ export const DataStatusChip: React.FC<DataStatusChipProps> = ({
 
   const routesStatus = status?.routes || 'live';
   const weatherStatus = status?.weather || 'live';
+  const weatherLabel = weatherStatus === 'historical' ? 'historical replay' : weatherStatus;
   const fuelModel = status?.fuel_model || 'calibrated';
 
   return (
@@ -31,7 +32,7 @@ export const DataStatusChip: React.FC<DataStatusChipProps> = ({
         <span className="font-semibold uppercase tracking-wider text-[10px]">Live Connected</span>
         <span className="text-forest-400">|</span>
         <span className="text-forest-300">
-          Routes: {routesStatus} · Weather: {weatherStatus} · Model: {fuelModel}
+          Routes: {routesStatus} · Weather: {weatherLabel} · Model: {fuelModel}
         </span>
       </div>
 
