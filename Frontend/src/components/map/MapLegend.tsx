@@ -79,7 +79,7 @@ export const MapLegend: React.FC<MapLegendProps> = ({
 
               {isRec && (
                 <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-[#1a5c47] text-white flex-shrink-0 ml-1">
-                  AI Pick · Click to show
+                  AI Pick
                 </span>
               )}
             </button>

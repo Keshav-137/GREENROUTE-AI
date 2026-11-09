@@ -38,9 +38,7 @@ export const useRouteStore = create<RouteState>((set, get) => ({
   applyRerank: (id, narrative) =>
     set((state) => ({
       recommendedRouteId: id,
-      selectedRouteId: state.routes.some((route) => route.id === id)
-        ? id
-        : state.selectedRouteId,
+      selectedRouteId: id,
       planResult: state.planResult
         ? {
             ...state.planResult,

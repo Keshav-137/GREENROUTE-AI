@@ -14,6 +14,55 @@ const isMockMode = () => {
   return import.meta.env.VITE_USE_MOCK_DATA !== 'false';
 };
 
+function transformMockGeometry(
+  coordinates: [number, number][],
+  origin: { lat: number; lon: number },
+  destination: { lat: number; lon: number }
+): [number, number][] {
+  const sourceOrigin = { lat: 18.6275, lon: 73.8443 };
+  const sourceDestination = { lat: 18.9482, lon: 72.9514 };
+  const sourceVector = {
+    lat: sourceDestination.lat - sourceOrigin.lat,
+    lon: sourceDestination.lon - sourceOrigin.lon,
+  };
+  const targetVector = {
+    lat: destination.lat - origin.lat,
+    lon: destination.lon - origin.lon,
+  };
+  const sourceLengthSquared =
+    sourceVector.lat ** 2 + sourceVector.lon ** 2;
+  const sourceLength = Math.sqrt(sourceLengthSquared);
+  const targetLength = Math.sqrt(targetVector.lat ** 2 + targetVector.lon ** 2);
+  const scale = sourceLength > 0 ? targetLength / sourceLength : 1;
+  const sourcePerpendicular = {
+    lat: -sourceVector.lon / sourceLength,
+    lon: sourceVector.lat / sourceLength,
+  };
+  const targetPerpendicular = {
+    lat: -targetVector.lon / (targetLength || 1),
+    lon: targetVector.lat / (targetLength || 1),
+  };
+
+  return coordinates.map(([lon, lat]) => {
+    const relative = { lat: lat - sourceOrigin.lat, lon: lon - sourceOrigin.lon };
+    const progress =
+      (relative.lat * sourceVector.lat + relative.lon * sourceVector.lon) /
+      sourceLengthSquared;
+    const crossTrack =
+      relative.lat * sourcePerpendicular.lat +
+      relative.lon * sourcePerpendicular.lon;
+
+    return [
+      origin.lon +
+        targetVector.lon * progress +
+        targetPerpendicular.lon * crossTrack * scale,
+      origin.lat +
+        targetVector.lat * progress +
+        targetPerpendicular.lat * crossTrack * scale,
+    ];
+  });
+}
+
 export const tripService = {
   isMockConfigured: isMockMode,
 
@@ -31,6 +80,25 @@ export const tripService = {
       mockData.origin = request.origin;
       mockData.destination = request.destination;
       mockData.cargo_load_tons = request.cargo_load_tons;
+      mockData.routes.forEach((route) => {
+        route.geometry.coordinates = transformMockGeometry(
+          route.geometry.coordinates as [number, number][],
+          request.origin,
+          request.destination
+        );
+        route.segments.forEach((segment) => {
+          segment.start_coord = transformMockGeometry(
+            [segment.start_coord as [number, number]],
+            request.origin,
+            request.destination
+          )[0];
+          segment.end_coord = transformMockGeometry(
+            [segment.end_coord as [number, number]],
+            request.origin,
+            request.destination
+          )[0];
+        });
+      });
 
       // Dynamically adjust fuel & CO2 slightly based on cargo load
       const payloadRatio = request.cargo_load_tons / 18.5;

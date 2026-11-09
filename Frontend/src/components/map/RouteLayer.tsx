@@ -17,6 +17,7 @@ export function updateRouteLayers(
     const casingLayerId = `layer-route-casing-${route.id}`;
     const isSelected = route.id === selectedRouteId;
     const isRecommended = route.id === recommendedRouteId;
+    const isActive = isSelected || isRecommended;
     const baseColor =
       ROUTE_COLORS[route.id] || ROUTE_COLORS[`fallback_${idx % 3}`] || '#2f8a9d';
 
@@ -53,19 +54,19 @@ export function updateRouteLayers(
           'line-cap': 'round',
         },
         paint: {
-          'line-color': isSelected ? '#ffffff' : '#000000',
-          'line-width': isSelected ? 8 : 5,
-          'line-opacity': isSelected ? 0.6 : 0.3,
+          'line-color': isActive ? '#ffffff' : '#000000',
+          'line-width': isActive ? 8 : 5,
+          'line-opacity': isActive ? 0.6 : 0.3,
         },
       });
     } else {
       map.setPaintProperty(
         casingLayerId,
         'line-color',
-        isSelected ? '#ffffff' : '#000000'
+        isActive ? '#ffffff' : '#000000'
       );
-      map.setPaintProperty(casingLayerId, 'line-width', isSelected ? 8 : 5);
-      map.setPaintProperty(casingLayerId, 'line-opacity', isSelected ? 0.6 : 0.3);
+      map.setPaintProperty(casingLayerId, 'line-width', isActive ? 8 : 5);
+      map.setPaintProperty(casingLayerId, 'line-opacity', isActive ? 0.6 : 0.3);
     }
 
     // Add primary line layer
@@ -80,8 +81,8 @@ export function updateRouteLayers(
         },
         paint: {
           'line-color': baseColor,
-          'line-width': isSelected ? 5.5 : 3.5,
-          'line-opacity': isSelected ? 1.0 : 0.6,
+          'line-width': isActive ? 5.5 : 3.5,
+          'line-opacity': isActive ? 1.0 : 0.6,
         },
       });
 
@@ -99,8 +100,8 @@ export function updateRouteLayers(
       }
     } else {
       map.setPaintProperty(lineLayerId, 'line-color', baseColor);
-      map.setPaintProperty(lineLayerId, 'line-width', isSelected ? 5.5 : 3.5);
-      map.setPaintProperty(lineLayerId, 'line-opacity', isSelected ? 1.0 : 0.6);
+      map.setPaintProperty(lineLayerId, 'line-width', isActive ? 5.5 : 3.5);
+      map.setPaintProperty(lineLayerId, 'line-opacity', isActive ? 1.0 : 0.6);
     }
 
     // Keep the active recommendation visible above the other alternatives.
