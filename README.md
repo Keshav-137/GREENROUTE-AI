@@ -67,6 +67,72 @@ GreenRouteAI/
 - npm
 - Internet access for live routing and weather providers
 
+From the repository root, install the frontend dependencies and start Vite:
+
+```powershell
+Set-Location Frontend
+npm ci
+Copy-Item .env.example .env
+npm run dev
+```
+
+Open `http://localhost:3000`. The default `Frontend/.env` setting
+`VITE_USE_MOCK_DATA=true` uses the bundled demonstration data and does not
+require the backend.
+
+### Full run (frontend with backend)
+
+1. In a terminal at the repository root, create the Python environment and
+   install backend dependencies:
+
+   ```powershell
+   py -3.11 -m venv .venv
+   .\.venv\Scripts\Activate.ps1
+   python -m pip install --upgrade pip
+   python -m pip install -r Backend\requirements.txt
+   Copy-Item Backend\.env.example Backend\.env
+   ```
+
+2. Start the backend:
+
+   ```powershell
+   .\.venv\Scripts\python.exe -m uvicorn app.main:app `
+     --app-dir Backend --host 0.0.0.0 --port 8000 --reload
+   ```
+
+3. In a second terminal, configure and start the frontend:
+
+   ```powershell
+   Set-Location Frontend
+   Copy-Item .env.example .env
+   ```
+
+   Set these values in `Frontend/.env`:
+
+   ```env
+   VITE_API_BASE_URL=http://localhost:8000
+   VITE_USE_MOCK_DATA=false
+   ```
+
+   Then run:
+
+   ```powershell
+   npm ci
+   npm run dev
+   ```
+
+4. Open `http://localhost:3000`.
+
+5. Verify the backend is available at
+   `http://localhost:8000/api/v1/health` and view interactive API
+   documentation at `http://localhost:8000/docs`.
+
+Stop each development server with `Ctrl+C`.
+
+For production-build validation, run `npm run build` from `Frontend`. For
+Docker-based backend startup, run `docker compose up --build` from the
+repository root.
+
 ## Backend setup on Windows
 
 From the repository root:
