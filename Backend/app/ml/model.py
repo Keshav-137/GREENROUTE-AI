@@ -37,6 +37,7 @@ def predict_fuel(segments: list[dict[str, Any]], vehicle: str, load_kg: float) -
     quantile = _conformal_quantile()
     return {
         "per_segment_litres": [round(float(value), 3) for value in litres],
+        "total_litres_raw": float(litres.sum()),
         "total_litres": round(float(litres.sum()), 2),
         "lo_litres": round(float(max(0, litres.sum() - quantile)), 2),
         "hi_litres": round(float(litres.sum() + quantile), 2),
@@ -54,10 +55,24 @@ def explain(segments: list[dict[str, Any]], vehicle: str, load_kg: float) -> lis
         import shap
         values = shap.TreeExplainer(model)(np.array([feature_row(s, vehicle, load_kg) for s in segments])).values
         means = values.mean(axis=0)
-        names = ["load_ratio", "total_mass", "mean_speed", "speed_variance", "grade",
-                 "grade_abs", "road_class", "rain_mm_h", "temp_c", "wind_head", "segment_length"]
+        names = ["Load ratio", "Total vehicle mass", "Mean speed", "Speed variance",
+                 "Gradient", "Absolute gradient", "Road class", "Rainfall",
+                 "Temperature", "Headwind", "Segment length"]
+        descriptions = {
+            "Load ratio": "Payload relative to the vehicle payload capacity.",
+            "Total vehicle mass": "Vehicle tare mass plus payload.",
+            "Mean speed": "Average segment speed used by the fuel model.",
+            "Speed variance": "Variation between observed maximum and average speed.",
+            "Gradient": "Signed road gradient affecting gravitational work.",
+            "Absolute gradient": "Magnitude of road gradient affecting tractive effort.",
+            "Road class": "Encoded road-class feature from the training data.",
+            "Rainfall": "Hourly precipitation in millimetres.",
+            "Temperature": "Ambient temperature in degrees Celsius.",
+            "Headwind": "Headwind speed in kilometres per hour.",
+            "Segment length": "Segment distance in kilometres.",
+        }
         return [{"feature": name, "impact": round(float(value), 4),
-                 "description": f"{name} contribution to residual fuel prediction."}
+                 "description": descriptions[name]}
                 for name, value in zip(names, means)]
     except (ImportError, ValueError, RuntimeError):
         return []

@@ -13,7 +13,7 @@ export const DataStatusChip: React.FC<DataStatusChipProps> = ({
   className = '',
   showDetails = false,
 }) => {
-  const isMock = status ? status.is_mock : import.meta.env.VITE_USE_MOCK_DATA === 'true';
+  const isMock = status ? status.is_mock : import.meta.env.VITE_USE_MOCK_DATA !== 'false';
 
   // Do not display the demo mode badge
   if (isMock) {
@@ -44,4 +44,3 @@ export const DataStatusChip: React.FC<DataStatusChipProps> = ({
     </div>
   );
 };
-

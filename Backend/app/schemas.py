@@ -29,6 +29,7 @@ class TripRequest(BaseModel):
             "time": 0.2, "fuel": 0.2, "co2": 0.2, "cost": 0.2, "risk": 0.2
         }
     )
+    what_if_rain: bool = False
 
 
 class RerankRequest(BaseModel):
@@ -57,4 +58,3 @@ class Segment(BaseModel):
     risk_score: float
     risk_level: Literal["low", "medium", "high"]
     hazard_type: str | None = None
-

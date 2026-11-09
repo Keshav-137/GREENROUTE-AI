@@ -10,7 +10,8 @@ import mockPlanJson from '@/mocks/mock_plan.json';
 import mockRerankJson from '@/mocks/mock_rerank.json';
 
 const isMockMode = () => {
-  return import.meta.env.VITE_USE_MOCK_DATA === 'true';
+  // Demo mode is the safe default when no .env file is present.
+  return import.meta.env.VITE_USE_MOCK_DATA !== 'false';
 };
 
 export const tripService = {
@@ -117,4 +118,3 @@ export const tripService = {
     }
   },
 };
-

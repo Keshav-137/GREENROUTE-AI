@@ -278,37 +278,11 @@
       "Route 2 has 4.3 km shorter odometer distance but consumes 6.4 L more fuel due to Khandala Ghat gradient.",
       "Route 3 provides the lowest financial cost (₹5,120) with modest time penalty (+30 min vs Route 1)."
     ],
-    "shap_values": [
-      {
-        "feature": "Road Gradient Profile",
-        "impact": -0.38,
-        "description": "Gradual expressway grades (-0.38 impact) minimize aerodynamic and uphill throttle surge."
-      },
-      {
-        "feature": "Stop-and-Go Congestion",
-        "impact": -0.27,
-        "description": "Uninterrupted 6-lane flow averts 18 transient braking cycles identified on Old NH48."
-      },
-      {
-        "feature": "Cargo Payload (18.5t)",
-        "impact": 0.22,
-        "description": "Payload adds base roll resistance equally across options; handled best by steady speeds."
-      },
-      {
-        "feature": "Weather & Fog Hazard",
-        "impact": -0.19,
-        "description": "Bhatan bypass avoids dense fog cloud deck concentrated on Khandala ridge."
-      },
-      {
-        "feature": "Toll Expense Weight",
-        "impact": 0.14,
-        "description": "Toll cost slightly offsets economic score but is offset 2.3x by diesel savings."
-      }
-    ],
+    "shap_values": [],
     "counterfactual": {
-      "description": "Reducing cargo payload from 18.5 tons to 14.8 tons (-20%) would save approximately 5.8 litres of diesel and eliminate 15.3 kg of CO2 on this corridor.",
+      "description": "Reducing cargo payload by 20% would save approximately 5.8 litres of diesel and eliminate 15.5 kg of CO2 on this corridor.",
       "fuel_saved_liters": 5.8,
-      "co2_reduced_kg": 15.3,
+      "co2_reduced_kg": 15.5,
       "parameter_adjusted": "Cargo Payload Weight",
       "percent_change": -20
     }
@@ -372,8 +346,8 @@
   "data_status": {
     "routes": "simulated",
     "weather": "simulated",
+    "elevation": "simulated",
     "fuel_model": "simulated-trained",
     "is_mock": true
   }
 }
-

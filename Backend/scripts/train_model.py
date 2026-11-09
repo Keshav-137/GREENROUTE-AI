@@ -49,7 +49,7 @@ def main() -> None:
     x_train, x_hold, y_train, y_hold = train_test_split(frame[FEATURES], target, test_size=.3, random_state=42)
     model = XGBRegressor(n_estimators=300, max_depth=4, learning_rate=.04, subsample=.85,
                          colsample_bytree=.85, objective="reg:squarederror", random_state=42,
-                         monotone_constraints="(1,1,0,0,0,0,0,0,0,0,1)")
+                         monotone_constraints="(1,1,0,0,0,1,0,1,0,0,1)")
     model.fit(x_train, y_train)
     residuals = np.abs(y_hold - model.predict(x_hold))
     ARTIFACTS.mkdir(exist_ok=True)

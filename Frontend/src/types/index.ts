@@ -101,8 +101,9 @@ export interface DepartureSlot {
 }
 
 export interface DataStatus {
-  routes: 'live' | 'simulated';
-  weather: 'live' | 'simulated';
+  routes: 'live' | 'cached' | 'simulated';
+  weather: 'live' | 'cached' | 'historical' | 'what-if' | 'simulated';
+  elevation: 'live' | 'cached' | 'simulated';
   fuel_model: 'calibrated' | 'simulated-trained';
   is_mock: boolean;
 }
@@ -115,6 +116,7 @@ export interface PlanRequest {
   departure_time: string;
   deadline: string;
   priority_weights?: PriorityWeights;
+  what_if_rain?: boolean;
 }
 
 export interface PlanResponse {
@@ -168,4 +170,3 @@ export interface ReportMetadata {
   compliance_standard: string;
   data_status: DataStatus;
 }
-

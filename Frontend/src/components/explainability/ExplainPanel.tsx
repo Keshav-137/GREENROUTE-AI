@@ -7,11 +7,13 @@ import { Sparkles, CheckCircle2, ArrowRightLeft, Info } from 'lucide-react';
 interface ExplainPanelProps {
   explainability?: ExplainabilityData | null;
   recommendedRouteName?: string;
+  isMock?: boolean;
 }
 
 export const ExplainPanel: React.FC<ExplainPanelProps> = ({
   explainability,
   recommendedRouteName = 'Optimal Route',
+  isMock = false,
 }) => {
   if (!explainability) {
     return (
@@ -65,11 +67,10 @@ export const ExplainPanel: React.FC<ExplainPanelProps> = ({
       </div>
 
       {/* SHAP Chart */}
-      <ShapChart shapValues={explainability.shap_values} />
+      <ShapChart shapValues={explainability.shap_values} available={!isMock} />
 
       {/* Counterfactual Scenario */}
       <CounterfactualCard counterfactual={explainability.counterfactual} />
     </div>
   );
 };
-

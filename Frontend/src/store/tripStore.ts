@@ -10,6 +10,7 @@ interface TripState {
   departureTime: string;
   deadline: string;
   departureWindowHours: number;
+  whatIfRain: boolean;
 
   setOrigin: (origin: LocationItem | null) => void;
   setDestination: (dest: LocationItem | null) => void;
@@ -18,6 +19,7 @@ interface TripState {
   setDepartureTime: (time: string) => void;
   setDeadline: (deadline: string) => void;
   setDepartureWindowHours: (hours: number) => void;
+  setWhatIfRain: (enabled: boolean) => void;
   swapLocations: () => void;
   loadDemoScenario: () => void;
   resetTrip: () => void;
@@ -45,6 +47,7 @@ export const useTripStore = create<TripState>((set, get) => ({
   departureTime: getDefaultDepartureTime(),
   deadline: getDefaultDeadline(),
   departureWindowHours: 4,
+  whatIfRain: false,
 
   setOrigin: (origin) => set({ origin }),
   setDestination: (destination) => set({ destination }),
@@ -58,6 +61,7 @@ export const useTripStore = create<TripState>((set, get) => ({
   setDepartureTime: (departureTime) => set({ departureTime }),
   setDeadline: (deadline) => set({ deadline }),
   setDepartureWindowHours: (departureWindowHours) => set({ departureWindowHours }),
+  setWhatIfRain: (whatIfRain) => set({ whatIfRain }),
 
   swapLocations: () => {
     const { origin, destination } = get();
@@ -73,6 +77,7 @@ export const useTripStore = create<TripState>((set, get) => ({
       departureTime: getDefaultDepartureTime(),
       deadline: getDefaultDeadline(),
       departureWindowHours: 4,
+      whatIfRain: false,
     });
   },
 
@@ -85,7 +90,7 @@ export const useTripStore = create<TripState>((set, get) => ({
       departureTime: getDefaultDepartureTime(),
       deadline: getDefaultDeadline(),
       departureWindowHours: 4,
+      whatIfRain: false,
     });
   },
 }));
-

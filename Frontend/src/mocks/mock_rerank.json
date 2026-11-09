@@ -44,8 +44,8 @@
   "data_status": {
     "routes": "simulated",
     "weather": "simulated",
+    "elevation": "simulated",
     "fuel_model": "simulated-trained",
     "is_mock": true
   }
 }
-

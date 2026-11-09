@@ -26,13 +26,25 @@ export async function apiClient<T>(
     Accept: 'application/json',
   };
 
-  const response = await fetch(url, {
-    ...options,
-    headers: {
-      ...defaultHeaders,
-      ...options.headers,
-    },
-  });
+  let response: Response;
+  try {
+    response = await fetch(url, {
+      ...options,
+      headers: {
+        ...defaultHeaders,
+        ...options.headers,
+      },
+    });
+  } catch (error) {
+    if (error instanceof TypeError) {
+      throw new ApiError(
+        `Unable to connect to the backend at ${API_BASE_URL}. Start the FastAPI server or enable demo mode with VITE_USE_MOCK_DATA=true.`,
+        0,
+        error
+      );
+    }
+    throw error;
+  }
 
   if (!response.ok) {
     let errorData: unknown;
@@ -56,4 +68,3 @@ export async function apiClient<T>(
 
   return response.json();
 }
-

@@ -32,19 +32,20 @@ TRIPS: dict[str, dict[str, Any]] = {}
 
 def _route_candidate(route: dict[str, Any], request: TripRequest, departure: datetime) -> dict[str, Any]:
     enriched = add_gradient(dict(route))
-    segments = get_segments(enriched, departure)
+    segments = get_segments(enriched, departure, request.what_if_rain)
     for segment in segments:
         segment["speed_kmh"] *= 0.82 if segment["rain_mm_h"] >= 10 else 1.0
     fuel_prediction = predict_fuel(segments, request.vehicle_type, request.cargo_load_tons * 1000)
+    fuel_raw = fuel_prediction["total_litres_raw"]
     fuel = fuel_prediction["total_litres"]
     fuel_price = get_diesel_price("Mumbai")
     duration = sum(s["distance_km"] / max(20, s["speed_kmh"]) for s in segments)
     risk = risk_score(segments)
     return {
         "id": route["id"], "name": route["name"], "distance_km": route["distance_km"],
-        "duration_hours": round(duration, 2), "fuel_liters": round(fuel, 1),
-        "fuel_uncertainty_pct": fuel_prediction["uncertainty_pct"], "co2_kg": round(fuel * 2.68, 1),
-        "cost_inr": round(fuel * fuel_price["price_inr_per_litre"] + route["toll_inr"]), "risk_score": risk,
+        "duration_hours": round(duration, 2), "fuel_liters": round(fuel_raw, 1),
+        "fuel_uncertainty_pct": fuel_prediction["uncertainty_pct"], "co2_kg": round(fuel_raw * 2.68, 1),
+        "cost_inr": round(fuel_raw * fuel_price["price_inr_per_litre"] + route["toll_inr"]), "risk_score": risk,
         "pareto_optimal": True, "toll_charges_inr": route["toll_inr"],
         "average_speed_kmh": round(route["distance_km"] / max(duration, .1), 1),
         "weather_condition": "Heavy monsoon rain near Lonavala" if risk >= .3 else "Light rain / partly cloudy",
@@ -52,8 +53,10 @@ def _route_candidate(route: dict[str, Any], request: TripRequest, departure: dat
         "elevation_profile": [{"lat": p["lat"], "lon": p["lon"], "elevation_m": p["elevation_m"]}
                              for p in enriched["points"]],
         "segments": segments, "source": route["source"], "fuel_price_source": fuel_price["source"],
+        "elevation_source": enriched["source_elevation"],
         "fuel_model_source": fuel_prediction["model_source"],
         "fuel_interval_litres": [fuel_prediction["lo_litres"], fuel_prediction["hi_litres"]],
+        "fuel_liters_raw": fuel_raw,
     }
 
 
@@ -118,14 +121,19 @@ def plan(request: TripRequest) -> dict[str, Any]:
         "routes": candidates, "pareto_frontier": [r["id"] for r in ranked],
         "explainability": {
             "recommendation_narrative": narrative(recommended, candidates),
-            "trade_offs": ["Risk uses forecast rain and terrain flags.", "Traffic curve is modeled, not live."],
-            "shap_values": shap_values, "counterfactual": {"description": "20% less payload", "fuel_saved_liters": round(recommended["fuel_liters"] * .05, 1),
-                                                   "co2_reduced_kg": round(recommended["co2_kg"] * .05, 1),
+            "trade_offs": ["Risk uses Open-Meteo precipitation, visibility, and terrain flags.", "Traffic curve is modeled, not live."],
+            "shap_values": shap_values, "counterfactual": {"description": "Reducing cargo payload by 20% lowers estimated diesel use on this route.",
+                                                   "fuel_saved_liters": round(recommended["fuel_liters_raw"] * .05, 1),
+                                                   "co2_reduced_kg": round(recommended["fuel_liters_raw"] * .05 * 2.68, 1),
                                                    "parameter_adjusted": "cargo_load_tons", "percent_change": -20},
         },
         "departure_analysis": _departure_analysis(request, routes),
         "data_status": {"routes": "live" if all(r["source"] in {"live", "cached"} for r in routes) else "simulated",
-                        "weather": "live" if all(s.get("source") in {"live", "cached"} for r in candidates for s in r["segments"]) else "simulated",
+                        "weather": ("what-if" if request.what_if_rain else
+                                    "historical" if all(s.get("source") == "historical" for r in candidates for s in r["segments"]) else
+                                    "live" if all(s.get("source") in {"live", "cached"} for r in candidates for s in r["segments"]) else "simulated"),
+                        "elevation": "live" if all(r.get("elevation_source") == "live" for r in candidates) else
+                                    "cached" if all(r.get("elevation_source") in {"live", "cached"} for r in candidates) else "simulated",
                         "fuel_model": "calibrated" if recommended["fuel_model_source"] == "physics+xgboost-residual" else "simulated-trained",
                         "is_mock": False},
     }
@@ -160,7 +168,9 @@ def report(trip_id: str) -> Response:
         f"Distance: {route['distance_km']} km\nFuel: {route['fuel_liters']} L\n"
         f"CO2: {route['co2_kg']} kg\nRisk: {route['risk_score']}\n"
         "Diesel factor: 2.68 kg CO2/L (tank-to-wheel)\n"
-        "Demo disclaimer: route, weather and elevation fallbacks are simulated and cached.\n"
+        f"Data status: routes={trip['data_status']['routes']}, "
+        f"weather={trip['data_status']['weather']}, "
+        f"elevation={trip['data_status']['elevation']}.\n"
     )
     # Keep the existing frontend download flow working without adding a PDF library.
     pdf = (

@@ -14,7 +14,8 @@ For a trip request, the system:
    - Public OSRM alternatives otherwise.
    - Cached responses are reused before making a new request.
 3. Enriches route points with elevation and gradient.
-4. Fetches hourly Open-Meteo precipitation, temperature, and wind.
+4. Fetches hourly Open-Meteo precipitation, temperature, wind, and visibility.
+   Historical scenario dates use the Open-Meteo archive API.
 5. Flags flood-prone and landslide/ghat segments.
 6. Estimates fuel with a physics baseline and optional trained XGBoost residual.
 7. Produces a conformal uncertainty interval when trained artifacts exist.
@@ -291,8 +292,8 @@ Creates a route plan. Example body:
   },
   "vehicle_type": "medium_truck",
   "cargo_load_tons": 2.5,
-  "departure_time": "2026-07-15T08:00:00+05:30",
-  "deadline": "2026-07-15T18:00:00+05:30",
+  "departure_time": "2024-07-25T08:00:00+05:30",
+  "deadline": "2024-07-25T18:00:00+05:30",
   "priority_weights": {
     "time": 0.2,
     "fuel": 0.2,

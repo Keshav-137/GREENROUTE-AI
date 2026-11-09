@@ -28,6 +28,7 @@ export const TripForm: React.FC<TripFormProps> = ({ onSuccess }) => {
     departureTime,
     deadline,
     departureWindowHours,
+    whatIfRain,
     setOrigin,
     setDestination,
     setVehicle,
@@ -35,6 +36,7 @@ export const TripForm: React.FC<TripFormProps> = ({ onSuccess }) => {
     setDepartureTime,
     setDeadline,
     setDepartureWindowHours,
+    setWhatIfRain,
     swapLocations,
     loadDemoScenario,
   } = useTripStore();
@@ -71,6 +73,7 @@ export const TripForm: React.FC<TripFormProps> = ({ onSuccess }) => {
         departure_time: new Date(departureTime).toISOString(),
         deadline: new Date(deadline).toISOString(),
         priority_weights: weights,
+        what_if_rain: whatIfRain,
       },
       {
         onSuccess: () => {
@@ -195,6 +198,21 @@ export const TripForm: React.FC<TripFormProps> = ({ onSuccess }) => {
         </div>
       </div>
 
+      <label className="flex items-start gap-2 p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-xs text-amber-200">
+        <input
+          type="checkbox"
+          checked={whatIfRain}
+          onChange={(e) => setWhatIfRain(e.target.checked)}
+          className="mt-0.5 accent-amber-500"
+        />
+        <span>
+          <strong>What-if rain replay</strong>
+          <span className="block text-[10px] text-amber-300/80">
+            Backup scenario: apply heavy rain to the route when historical weather is unavailable.
+          </span>
+        </span>
+      </label>
+
       {/* Departure Window Slider */}
       <div className="space-y-1 p-2.5 rounded-xl bg-forest-850/60 border border-forest-750/50">
         <div className="flex items-center justify-between text-xs">
@@ -241,4 +259,3 @@ export const TripForm: React.FC<TripFormProps> = ({ onSuccess }) => {
     </form>
   );
 };
-

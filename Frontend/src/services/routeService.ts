@@ -2,7 +2,7 @@ import { apiClient } from '@/api/client';
 import { ENDPOINTS } from '@/api/endpoints';
 import mockRoutesJson from '@/mocks/mock_routes.json';
 
-const isMockMode = () => import.meta.env.VITE_USE_MOCK_DATA === 'true';
+const isMockMode = () => import.meta.env.VITE_USE_MOCK_DATA !== 'false';
 
 export interface RouteCatalogItem {
   id: string;
@@ -31,4 +31,3 @@ export const routeService = {
     return apiClient<RouteCatalogResponse>(ENDPOINTS.ROUTES);
   },
 };
-

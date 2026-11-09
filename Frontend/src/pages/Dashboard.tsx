@@ -211,7 +211,7 @@ export const Dashboard: React.FC = () => {
               <Layers className="w-5 h-5" />
             </div>
             <h3 className="text-sm font-bold text-white">
-              1. SRTM 30m Terrain Elevation
+              1. Open-Meteo Copernicus GLO-90 Elevation
             </h3>
             <p className="text-xs text-forest-300 leading-relaxed">
               Calculates gradient percentage along Western Ghats switchbacks. Quantifies gravitational rolling resistance and engine thermal load on steep climbs.
@@ -240,7 +240,7 @@ export const Dashboard: React.FC = () => {
               3. Pareto Multi-Objective Frontier
             </h3>
             <p className="text-xs text-forest-300 leading-relaxed">
-              Simultaneously optimizes transit duration, diesel burn, GHG intensity, toll economics, and monsoon landslide/fog exposure using non-dominated sorting.
+              Simultaneously optimizes transit duration, diesel burn, GHG intensity, toll economics, and weather/terrain risk using non-dominated sorting.
             </p>
           </div>
         </div>
@@ -256,7 +256,7 @@ export const Dashboard: React.FC = () => {
             </h3>
           </div>
           <span className="text-[10px] text-forest-300 font-mono">
-            Environment: {import.meta.env.VITE_USE_MOCK_DATA === 'true' ? 'Demonstration Mode' : 'Production Live'}
+            Environment: {import.meta.env.VITE_USE_MOCK_DATA !== 'false' ? 'Demonstration Mode' : 'Production Live'}
           </span>
         </div>
 
@@ -267,11 +267,11 @@ export const Dashboard: React.FC = () => {
           </div>
           <div className="p-2.5 rounded-lg bg-forest-900/60 border border-forest-750/40">
             <span className="text-forest-400 text-[10px] block">Digital Elevation</span>
-            <span className="font-semibold text-white">SRTM 30m Western Ghats</span>
+            <span className="font-semibold text-white">Copernicus GLO-90 Elevation</span>
           </div>
           <div className="p-2.5 rounded-lg bg-forest-900/60 border border-forest-750/40">
             <span className="text-forest-400 text-[10px] block">Atmospheric Feed</span>
-            <span className="font-semibold text-white">IMD Maharashtra Radar</span>
+            <span className="font-semibold text-white">Open-Meteo Weather</span>
           </div>
           <div className="p-2.5 rounded-lg bg-forest-900/60 border border-forest-750/40">
             <span className="text-forest-400 text-[10px] block">Carbon Standard</span>
@@ -282,4 +282,3 @@ export const Dashboard: React.FC = () => {
     </div>
   );
 };
-

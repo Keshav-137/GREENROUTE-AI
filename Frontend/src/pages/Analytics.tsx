@@ -66,9 +66,9 @@ export const Analytics: React.FC = () => {
         <ExplainPanel
           explainability={planResult.explainability}
           recommendedRouteName={recommendedRoute?.name}
+          isMock={planResult.data_status.is_mock}
         />
       </div>
     </div>
   );
 };
-

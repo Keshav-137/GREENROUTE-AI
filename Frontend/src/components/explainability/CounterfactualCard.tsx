@@ -75,9 +75,8 @@ export const CounterfactualCard: React.FC<CounterfactualCardProps> = ({
 
       <div className="text-[10px] text-forest-400 flex items-center gap-1.5 pt-1">
         <Sliders className="w-3 h-3" />
-        <span>Derived from calibrated multi-axle aerodynamic drag and brake regeneration equations.</span>
+        <span>Derived from the calibrated physics fuel model and diesel emission factor.</span>
       </div>
     </div>
   );
 };
-

@@ -110,7 +110,7 @@ export const CarbonReport: React.FC<CarbonReportProps> = ({
         {downloadSuccess && (
           <div className="mt-3 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-xs text-emerald-300 flex items-center gap-2">
             <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />
-            <span>Audit report downloaded successfully. Note: Demonstration mode disclaimer is clearly documented in file.</span>
+            <span>Audit report downloaded successfully.</span>
           </div>
         )}
 
@@ -228,7 +228,7 @@ export const CarbonReport: React.FC<CarbonReportProps> = ({
         </div>
         <ul className="space-y-2 text-xs text-forest-300 leading-relaxed list-disc list-inside">
           <li>
-            <strong>Fuel Modeling:</strong> Baseline calculations integrate heavy commercial vehicle engine torque curves with road grade gradients extracted from SRTM 30m Digital Elevation Models.
+            <strong>Fuel Modeling:</strong> Baseline calculations integrate vehicle mass, rolling resistance, aerodynamic drag, rain adjustment, and road gradients from Open-Meteo Copernicus GLO-90 elevation.
           </li>
           <li>
             <strong>Emission Coefficients:</strong> Tailpipe greenhouse gas calculations apply standard IPCC Tier 2 factors (2.68 kg CO₂ per liter for automotive diesel fuel).
@@ -237,11 +237,10 @@ export const CarbonReport: React.FC<CarbonReportProps> = ({
             <strong>Weather Ingestion:</strong> Wind shear, precipitation rate, and Ghat fog conditions are sampled periodically from regional radar and atmospheric forecast streams.
           </li>
           <li>
-            <strong>Demonstration Status:</strong> Reports generated in mock mode reflect physics-aligned synthetic testbeds designed for competition demonstration.
+            <strong>Data Status:</strong> This report identifies whether route, weather, and model inputs are live, historical, cached, simulated, or what-if.
           </li>
         </ul>
       </div>
     </div>
   );
 };
-

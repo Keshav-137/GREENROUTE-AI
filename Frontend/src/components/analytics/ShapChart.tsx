@@ -15,6 +15,7 @@ import { Brain, HelpCircle } from 'lucide-react';
 
 interface ShapChartProps {
   shapValues: ShapValue[];
+  available?: boolean;
 }
 
 interface ShapTooltipProps {
@@ -51,7 +52,14 @@ const CustomShapTooltip: React.FC<ShapTooltipProps> = ({ active, payload }) => {
   return null;
 };
 
-export const ShapChart: React.FC<ShapChartProps> = ({ shapValues }) => {
+export const ShapChart: React.FC<ShapChartProps> = ({ shapValues, available = true }) => {
+  if (!available) {
+    return (
+      <div className="p-6 rounded-xl bg-forest-850/80 border border-forest-750/70 text-center text-xs text-forest-400">
+        SHAP attribution is hidden for mock data. Run the planner with the live backend and a trained model artifact.
+      </div>
+    );
+  }
   if (!shapValues || shapValues.length === 0) {
     return (
       <div className="p-6 rounded-xl bg-forest-850/80 border border-forest-750/70 text-center text-xs text-forest-400">
@@ -73,7 +81,7 @@ export const ShapChart: React.FC<ShapChartProps> = ({ shapValues }) => {
               SHAP Feature Attribution (Physics-ML Explainability)
             </h3>
             <p className="text-xs text-forest-300">
-              Contribution of elevation grade, payload drag, congestion and fog toward recommendation
+              Contribution of the trained fuel model features to residual fuel prediction
             </p>
           </div>
         </div>
@@ -134,10 +142,9 @@ export const ShapChart: React.FC<ShapChartProps> = ({ shapValues }) => {
           Negative values indicate factors that favorably reduce fuel consumption and GHG emissions.
         </span>
         <span className="text-[11px] font-mono text-forest-400">
-          Trained on Western Ghats telematics & SRTM elevation
+          Features: load, mass, speed variance, gradient, rain, temperature and wind
         </span>
       </div>
     </div>
   );
 };
-

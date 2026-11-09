@@ -157,9 +157,8 @@ export const DepartureChart: React.FC<DepartureChartProps> = ({
 
       <div className="p-2.5 rounded-lg bg-forest-900/60 border border-forest-750/50 flex items-center justify-between text-xs text-forest-300">
         <span>Early morning slots (04:00 - 06:00) avert peak thermal cooling fog and save ~18.6 kg CO₂.</span>
-        <span className="text-[11px] font-mono text-forest-400">Weather feed: IMD Maharashtra Real-Time</span>
+        <span className="text-[11px] font-mono text-forest-400">Weather feed: Open-Meteo forecast/archive</span>
       </div>
     </div>
   );
 };
-
