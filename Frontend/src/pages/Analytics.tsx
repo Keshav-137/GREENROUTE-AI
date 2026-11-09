@@ -50,7 +50,10 @@ export const Analytics: React.FC = () => {
 
         {/* Departure Time Weather Sensitivity Chart */}
         <div className="h-full">
-          <DepartureChart departureSlots={planResult.departure_analysis} />
+          <DepartureChart
+            departureSlots={planResult.departure_analysis}
+            comparison={planResult.departure_comparison}
+          />
         </div>
       </div>
 

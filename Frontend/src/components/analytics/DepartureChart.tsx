@@ -16,6 +16,13 @@ import { Clock, Sparkles } from 'lucide-react';
 
 interface DepartureChartProps {
   departureSlots: DepartureSlot[];
+  comparison?: {
+    before: DepartureSlot;
+    after: DepartureSlot;
+    fuel_saved_liters: number;
+    risk_reduction: number;
+    summary: string;
+  };
 }
 
 interface DepartureTooltipProps {
@@ -54,6 +61,7 @@ const CustomDepartureTooltip: React.FC<DepartureTooltipProps> = ({
 
 export const DepartureChart: React.FC<DepartureChartProps> = ({
   departureSlots,
+  comparison,
 }) => {
   if (!departureSlots || departureSlots.length === 0) {
     return (
@@ -64,6 +72,12 @@ export const DepartureChart: React.FC<DepartureChartProps> = ({
   }
 
   const bestSlot = departureSlots.find((s) => s.is_recommended) || departureSlots[0];
+  const before = comparison?.before || departureSlots.find((s) => s.departure_hour === '08:00');
+  const after = comparison?.after || bestSlot;
+  const fuelSaved = comparison?.fuel_saved_liters ??
+    (before && after ? (before.co2_kg - after.co2_kg) / 2.68 : 0);
+  const riskReduction = comparison?.risk_reduction ??
+    (before && after ? before.risk_score - after.risk_score : 0);
 
   return (
     <div className="p-4 rounded-xl bg-forest-850/80 border border-forest-750/70 shadow-lg space-y-3">
@@ -75,7 +89,7 @@ export const DepartureChart: React.FC<DepartureChartProps> = ({
               Departure Time Sensitivity & Weather Risk Window
             </h3>
             <p className="text-xs text-forest-300">
-              Correlating diurnal Khandala fog patterns & commuter choke points against carbon footprint
+              Same route, vehicle, and payload: compare an early departure with the 08:00 baseline
             </p>
           </div>
         </div>
@@ -155,8 +169,25 @@ export const DepartureChart: React.FC<DepartureChartProps> = ({
         </ResponsiveContainer>
       </div>
 
+      {before && after && (
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
+          <div className="p-2.5 rounded-lg bg-forest-900/60 border border-forest-750/50">
+            <span className="text-forest-400 block">Before · {before.departure_hour}</span>
+            <strong className="text-white">{before.co2_kg.toFixed(1)} kg CO₂ · risk {before.risk_score.toFixed(2)}</strong>
+          </div>
+          <div className="p-2.5 rounded-lg bg-[#1a5c47]/30 border border-[#267b5e]/40">
+            <span className="text-[#3ec99f] block">After · {after.departure_hour}</span>
+            <strong className="text-white">{after.co2_kg.toFixed(1)} kg CO₂ · risk {after.risk_score.toFixed(2)}</strong>
+          </div>
+          <div className="p-2.5 rounded-lg bg-[#2f8a9d]/20 border border-[#2f8a9d]/40">
+            <span className="text-[#42a7bc] block">Departure-time win</span>
+            <strong className="text-white">-{fuelSaved.toFixed(1)} L · -{riskReduction.toFixed(2)} risk</strong>
+          </div>
+        </div>
+      )}
+
       <div className="p-2.5 rounded-lg bg-forest-900/60 border border-forest-750/50 flex items-center justify-between text-xs text-forest-300">
-        <span>Early morning slots (04:00 - 06:00) avert peak thermal cooling fog and save ~18.6 kg CO₂.</span>
+        <span>{comparison?.summary || 'Earlier departure lowers modeled fuel use and climate risk on the same route.'}</span>
         <span className="text-[11px] font-mono text-forest-400">Weather feed: Open-Meteo forecast/archive</span>
       </div>
     </div>

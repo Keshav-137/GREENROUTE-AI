@@ -13,6 +13,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_absolute_percentage_error
 from xgboost import XGBRegressor
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -51,13 +52,33 @@ def main() -> None:
                          colsample_bytree=.85, objective="reg:squarederror", random_state=42,
                          monotone_constraints="(1,1,0,0,0,1,0,1,0,0,1)")
     model.fit(x_train, y_train)
-    residuals = np.abs(y_hold - model.predict(x_hold))
+    hybrid_residual = model.predict(x_hold)
+    hybrid_predictions = np.maximum(0, baseline[x_hold.index] + hybrid_residual)
+    physics_predictions = np.maximum(0, baseline[x_hold.index])
+    actual = frame.loc[x_hold.index, "fuel_consumed_litres"].to_numpy()
+    residuals = np.abs(actual - hybrid_predictions)
+    monotonicity = {}
+    for feature in ("load_ratio", "total_mass", "grade_abs", "rain_mm_h", "segment_length"):
+        low = x_hold.copy()
+        high = x_hold.copy()
+        low[feature] = low[feature].quantile(.25)
+        high[feature] = high[feature].quantile(.75)
+        monotonicity[feature] = bool(np.all(model.predict(high) >= model.predict(low) - 1e-8))
     ARTIFACTS.mkdir(exist_ok=True)
     model.save_model(ARTIFACTS / "fuel_residual.json")
     (ARTIFACTS / "conformal_q.json").write_text(json.dumps({"q90_litres": float(np.quantile(residuals, .9))}), encoding="utf-8")
     (ARTIFACTS / "metrics.json").write_text(json.dumps({
         "rows": int(len(frame)), "calibration_rows": int(len(x_hold)),
+        "vehicle_classes": sorted(frame["vehicle_category"].dropna().unique().tolist()),
+        "physics_mape_pct": float(mean_absolute_percentage_error(actual, physics_predictions) * 100),
+        "hybrid_mape_pct": float(mean_absolute_percentage_error(actual, hybrid_predictions) * 100),
         "conformal_coverage_target": .9, "q90_litres": float(np.quantile(residuals, .9)),
+        "interval_coverage_pct": float(np.mean(
+            (actual >= np.maximum(0, hybrid_predictions - np.quantile(residuals, .9)))
+            & (actual <= hybrid_predictions + np.quantile(residuals, .9))
+        ) * 100),
+        "monotonicity_check": monotonicity,
+        "monotonicity_passed": all(monotonicity.values()),
     }, indent=2), encoding="utf-8")
     print(f"trained {len(frame)} rows; q90={np.quantile(residuals, .9):.3f} L")
 

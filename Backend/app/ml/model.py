@@ -42,7 +42,7 @@ def predict_fuel(segments: list[dict[str, Any]], vehicle: str, load_kg: float) -
         "lo_litres": round(float(max(0, litres.sum() - quantile)), 2),
         "hi_litres": round(float(litres.sum() + quantile), 2),
         "uncertainty_pct": round(float(quantile / max(litres.sum(), .01) * 100), 1),
-        "model_source": model_source,
+        "model_source": "telematics-calibrated" if model_source == "physics+xgboost-residual" else model_source,
     }
 
 

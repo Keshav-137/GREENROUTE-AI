@@ -2,21 +2,21 @@ scenarios:
   - id: pune_mumbai_monsoon
     origin: {name: "Pune Freight Hub, Bhosari MIDC", lat: 18.6275, lon: 73.8443}
     destination: {name: "JNPT Container Port, Navi Mumbai", lat: 18.9482, lon: 72.9514}
-    vehicle_type: medium_truck
-    cargo_load_tons: 2.5
+    vehicle_type: heavy_duty_diesel
+    cargo_load_tons: 18.5
     departure_time: "2024-07-25T08:00:00+05:30"
     deadline: "2024-07-25T18:00:00+05:30"
   - id: nashik_pune_mandi
     origin: {name: "Nashik FPO Hub", lat: 20.0059, lon: 73.7910}
     destination: {name: "Pune Mandi", lat: 18.5204, lon: 73.8567}
-    vehicle_type: medium_truck
-    cargo_load_tons: 3.0
+    vehicle_type: heavy_duty_diesel
+    cargo_load_tons: 18.5
     departure_time: "2024-07-25T14:00:00+05:30"
     deadline: "2024-07-26T05:00:00+05:30"
   - id: pune_mumbai_early
     origin: {name: "Pune Freight Hub, Bhosari MIDC", lat: 18.6275, lon: 73.8443}
     destination: {name: "JNPT Container Port, Navi Mumbai", lat: 18.9482, lon: 72.9514}
-    vehicle_type: medium_truck
-    cargo_load_tons: 2.5
+    vehicle_type: heavy_duty_diesel
+    cargo_load_tons: 18.5
     departure_time: "2024-07-25T05:00:00+05:30"
     deadline: "2024-07-25T18:00:00+05:30"

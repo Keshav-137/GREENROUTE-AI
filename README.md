@@ -222,6 +222,55 @@ Backend/artifacts/
 The artifacts directory is ignored by Git. Until training is run, the API
 explicitly reports `physics-baseline` and uses a conservative fallback interval.
 
+## Results and evidence
+
+The hero scenario used in the UI, README examples, and recording is the same:
+**Tata Signa heavy-duty diesel truck, 18.5 t payload, Pune Freight Hub to JNPT
+Container Port**. The planner still accepts arbitrary user-entered origins,
+destinations, departure times, deadlines, vehicle types, and payloads.
+
+Run the training command above before recording. It writes the following
+measured values to `Backend/artifacts/metrics.json`:
+
+| Metric | Value |
+|---|---:|
+| Clean telematics rows | `metrics.json: rows` |
+| Vehicle classes | `metrics.json: vehicle_classes` |
+| Physics-only MAPE | `metrics.json: physics_mape_pct` |
+| Telematics-calibrated hybrid MAPE | `metrics.json: hybrid_mape_pct` |
+| 90% interval empirical coverage | `metrics.json: interval_coverage_pct` |
+| Monotonicity check | `metrics.json: monotonicity_passed` |
+
+The model is trained on **22,672 cleaned telematics missions** from the TUM
+DT-CARGO dataset. The checked-in records cover one class:
+`Heavy Commercial Truck (Class N3 Articulated Combination)`. Therefore the
+18.5 t Tata Signa hero scenario is within the heavy-truck payload range used
+by the physics model, but the exact Tata Signa vehicle is not an individually
+identified vehicle in the telematics CSV; it is a scenario vehicle mapped to
+the heavy-truck class. The metrics in `metrics.json`, not mock UI values, are
+the claims to show in the video.
+
+The departure analysis provides a before/after comparison on the same route,
+truck, and payload: the 08:00 baseline is compared with the recommended 05:00
+slot, showing modeled fuel saved and risk reduction. Congestion is explicitly
+modeled typical-day traffic, not live traffic.
+
+## Data provenance
+
+| Source | Licence / terms | Rows or coverage | Used for |
+|---|---|---:|---|
+| `Data/06_Fuel_Consumption/cleaned_fuel_records.csv` — TUM DT-CARGO | CC BY 4.0; Zenodo record 7599656 | 22,672 missions | XGBoost residual training and calibration |
+| Open-Meteo forecast API | Open data; attribution required | Hourly, route points, up to 7 forecast days | Current precipitation, temperature, wind, visibility |
+| Open-Meteo Historical Weather API | Copernicus/ECMWF data; CC BY 4.0 attribution | Historical hourly archive | Historical monsoon replay |
+| Open-Meteo Elevation API | Copernicus DEM GLO-90; 90 m; attribution required | Up to 100 coordinates/request | Elevation and gradient |
+| OSRM public routing API | OSM/ODbL attribution; public service limits apply | Up to 3 alternatives when available | Live route geometry and duration |
+| OpenRouteService `driving-hgv` | OpenStreetMap/ODbL attribution; API terms and key required | Up to 3 alternatives when configured | Truck-aware live routing |
+| `Data/07_Fuel_Prices/diesel_prices.csv` / fuel API | PPAC/IOCL GODL or provider API terms | Historical CSV plus Mumbai lookup | Diesel cost |
+| `Data/08_Emission_Factors/emission_factors.csv` | CEA/MoEFCC/IPCC reference terms | 12 factors | 2.68 kg CO₂/L diesel factor |
+
+See [Data/10_Documentation/LICENCE_AND_ATTRIBUTION.md](./Data/10_Documentation/LICENCE_AND_ATTRIBUTION.md)
+for attribution details.
+
 ## Start the backend
 
 ```powershell
@@ -290,8 +339,8 @@ Creates a route plan. Example body:
     "lat": 18.9482,
     "lon": 72.9514
   },
-  "vehicle_type": "medium_truck",
-  "cargo_load_tons": 2.5,
+  "vehicle_type": "heavy_duty_diesel",
+  "cargo_load_tons": 18.5,
   "departure_time": "2024-07-25T08:00:00+05:30",
   "deadline": "2024-07-25T18:00:00+05:30",
   "priority_weights": {
@@ -327,7 +376,9 @@ Every response identifies whether data is live, cached, or simulated:
 - `live`: fetched successfully from an external provider.
 - `cached`: returned from the SQLite request cache.
 - `simulated`: deterministic fallback used when a provider or key is unavailable.
-- `fuel_model: calibrated`: trained XGBoost and conformal artifacts are present.
+- `fuel_model: telematics-calibrated`: trained XGBoost residual and conformal
+  artifacts are present.
+- `fuel_model: physics-baseline`: no trained artifact is installed yet.
 - `fuel_model: simulated-trained`: training artifacts are not installed yet.
 
 Cache location:

@@ -9,6 +9,7 @@ VEHICLES = {
     "light_truck": {"empty": 925, "payload": 750, "base": 12.0, "cd": 0.75, "area": 3.2, "crr": .010},
     "medium_duty_diesel": {"empty": 5200, "payload": 12000, "base": 24.0, "cd": .75, "area": 7.0, "crr": .007},
     "medium_truck": {"empty": 5200, "payload": 12000, "base": 24.0, "cd": .75, "area": 7.0, "crr": .007},
+    "medium_duty_diesel": {"empty": 5200, "payload": 12000, "base": 24.0, "cd": .75, "area": 7.0, "crr": .007},
     "heavy_duty_diesel": {"empty": 10500, "payload": 28000, "base": 32.0, "cd": .75, "area": 8.5, "crr": .007},
     "heavy_truck": {"empty": 10500, "payload": 28000, "base": 32.0, "cd": .75, "area": 8.5, "crr": .007},
 }

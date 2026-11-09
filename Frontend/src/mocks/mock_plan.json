@@ -347,7 +347,7 @@
     "routes": "simulated",
     "weather": "simulated",
     "elevation": "simulated",
-    "fuel_model": "simulated-trained",
+    "fuel_model": "physics-baseline",
     "is_mock": true
   }
 }

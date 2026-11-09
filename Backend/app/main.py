@@ -74,20 +74,29 @@ def _rank(candidates: list[dict[str, Any]], weights: dict[str, float]) -> list[d
     return rank(ranked, weights)
 
 
-def _departure_analysis(request: TripRequest, routes: list[dict[str, Any]]) -> list[dict[str, Any]]:
+def _departure_analysis(request: TripRequest, routes: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], dict[str, Any]]:
     slots = []
     for hour in (5, 8, 14, 19):
         departure = request.departure_time.replace(hour=hour, minute=0, second=0, microsecond=0)
-        risk = _route_candidate(routes[0], request, departure)["risk_score"]
+        candidate = _route_candidate(routes[0], request, departure)
+        risk = candidate["risk_score"]
         traffic = "low" if hour in (5, 19) else "heavy" if hour == 8 else "moderate"
         slots.append({
             "time_slot": f"{hour:02d}:00 - {(hour + 2) % 24:02d}:00", "departure_hour": f"{hour:02d}:00",
-            "co2_kg": round(_route_candidate(routes[0], request, departure)["co2_kg"], 1),
+            "fuel_liters": candidate["fuel_liters"], "co2_kg": candidate["co2_kg"],
             "risk_score": risk, "is_recommended": hour == 5,
             "delay_probability_pct": 8 if traffic == "low" else 32 if traffic == "moderate" else 48,
             "traffic_level": traffic,
         })
-    return slots
+    before = next(slot for slot in slots if slot["departure_hour"] == "08:00")
+    after = next(slot for slot in slots if slot["departure_hour"] == "05:00")
+    return slots, {
+        "before": before,
+        "after": after,
+        "fuel_saved_liters": round(before["fuel_liters"] - after["fuel_liters"], 1),
+        "risk_reduction": round(before["risk_score"] - after["risk_score"], 3),
+        "summary": "Leaving at 05:00 instead of 08:00 reduces modeled fuel and climate risk on the same route.",
+    }
 
 
 @app.get("/api/v1/health")
@@ -112,6 +121,7 @@ def plan(request: TripRequest) -> dict[str, Any]:
     ranked = _rank(candidates, request.priority_weights)
     recommended = ranked[0]
     shap_values = explain_fuel(recommended["segments"], request.vehicle_type, request.cargo_load_tons * 1000)
+    departure_analysis, departure_comparison = _departure_analysis(request, routes)
     result = {
         "trip_id": trip_id, "created_at": datetime.now(timezone.utc).isoformat(),
         "origin": request.origin.model_dump(), "destination": request.destination.model_dump(),
@@ -127,14 +137,15 @@ def plan(request: TripRequest) -> dict[str, Any]:
                                                    "co2_reduced_kg": round(recommended["fuel_liters_raw"] * .05 * 2.68, 1),
                                                    "parameter_adjusted": "cargo_load_tons", "percent_change": -20},
         },
-        "departure_analysis": _departure_analysis(request, routes),
+        "departure_analysis": departure_analysis,
+        "departure_comparison": departure_comparison,
         "data_status": {"routes": "live" if all(r["source"] in {"live", "cached"} for r in routes) else "simulated",
                         "weather": ("what-if" if request.what_if_rain else
                                     "historical" if all(s.get("source") == "historical" for r in candidates for s in r["segments"]) else
                                     "live" if all(s.get("source") in {"live", "cached"} for r in candidates for s in r["segments"]) else "simulated"),
                         "elevation": "live" if all(r.get("elevation_source") == "live" for r in candidates) else
                                     "cached" if all(r.get("elevation_source") in {"live", "cached"} for r in candidates) else "simulated",
-                        "fuel_model": "calibrated" if recommended["fuel_model_source"] == "physics+xgboost-residual" else "simulated-trained",
+                        "fuel_model": "telematics-calibrated" if recommended["fuel_model_source"] == "telematics-calibrated" else "physics-baseline",
                         "is_mock": False},
     }
     TRIPS[trip_id] = result

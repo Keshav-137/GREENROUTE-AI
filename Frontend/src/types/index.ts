@@ -98,13 +98,14 @@ export interface DepartureSlot {
   is_recommended: boolean;
   delay_probability_pct: number;
   traffic_level: 'low' | 'moderate' | 'heavy';
+  fuel_liters: number;
 }
 
 export interface DataStatus {
   routes: 'live' | 'cached' | 'simulated';
   weather: 'live' | 'cached' | 'historical' | 'what-if' | 'simulated';
   elevation: 'live' | 'cached' | 'simulated';
-  fuel_model: 'calibrated' | 'simulated-trained';
+  fuel_model: 'telematics-calibrated' | 'physics-baseline';
   is_mock: boolean;
 }
 
@@ -136,6 +137,13 @@ export interface PlanResponse {
   pareto_frontier: string[];
   explainability: ExplainabilityData;
   departure_analysis: DepartureSlot[];
+  departure_comparison?: {
+    before: DepartureSlot;
+    after: DepartureSlot;
+    fuel_saved_liters: number;
+    risk_reduction: number;
+    summary: string;
+  };
   data_status: DataStatus;
 }
 
