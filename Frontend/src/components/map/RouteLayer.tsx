@@ -102,6 +102,12 @@ export function updateRouteLayers(
       map.setPaintProperty(lineLayerId, 'line-width', isSelected ? 5.5 : 3.5);
       map.setPaintProperty(lineLayerId, 'line-opacity', isSelected ? 1.0 : 0.6);
     }
+
+    // Keep the active recommendation visible above the other alternatives.
+    if (isSelected || isRecommended) {
+      if (map.getLayer(casingLayerId)) map.moveLayer(casingLayerId);
+      if (map.getLayer(lineLayerId)) map.moveLayer(lineLayerId);
+    }
   });
 }
 
@@ -118,4 +124,3 @@ export function cleanupRouteLayers(map: MapLibreMap, routes: RouteCandidate[]) {
 }
 
 export const RouteLayer: React.FC = () => null;
-
