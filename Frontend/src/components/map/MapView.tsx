@@ -43,7 +43,7 @@ export const MapView: React.FC<MapViewProps> = ({
   useEffect(() => {
     if (!mapContainer.current || mapRef.current) return;
 
-    // Default center around Pune - Mumbai Ghat corridor
+    // Use the corridor fit once routes are available.
     const initialCenter: [number, number] = [73.4000, 18.7800];
 
     const map = new maplibregl.Map({
@@ -197,7 +197,7 @@ export const MapView: React.FC<MapViewProps> = ({
           onClick={() => {
             const map = mapRef.current;
             if (map) {
-              map.flyTo({ center: [73.4000, 18.7800], zoom: 9.2, duration: 800 });
+              handleFitBounds();
             }
           }}
           className="p-1.5 rounded-lg bg-forest-900/90 hover:bg-forest-850 text-forest-300 hover:text-white border border-forest-750 shadow-lg backdrop-blur-md transition"
@@ -209,9 +209,8 @@ export const MapView: React.FC<MapViewProps> = ({
 
       {/* Vector Tile Attribution Watermark */}
       <div className="absolute bottom-1 right-16 z-10 text-[9px] text-forest-500 font-mono pointer-events-none select-none">
-        OpenFreeMap Vector Tiles · Western Ghats DEM
+        OpenFreeMap navigation map
       </div>
     </div>
   );
 };
-

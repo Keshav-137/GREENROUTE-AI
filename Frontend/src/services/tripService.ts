@@ -80,7 +80,10 @@ export const tripService = {
       mockData.origin = request.origin;
       mockData.destination = request.destination;
       mockData.cargo_load_tons = request.cargo_load_tons;
+      const originLabel = request.origin.name.split(',')[0];
+      const destinationLabel = request.destination.name.split(',')[0];
       mockData.routes.forEach((route) => {
+        route.name = `${route.name.split(' · ')[0]} · ${originLabel} to ${destinationLabel}`;
         route.geometry.coordinates = transformMockGeometry(
           route.geometry.coordinates as [number, number][],
           request.origin,
