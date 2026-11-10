@@ -9,6 +9,14 @@ import {
 import mockPlanJson from '@/mocks/mock_plan.json';
 import mockRerankJson from '@/mocks/mock_rerank.json';
 
+export interface FuelPrice {
+  fuel_type: 'diesel';
+  city: string;
+  price_inr_per_litre: number;
+  source: 'live' | 'cached' | 'simulated';
+  as_of: string;
+}
+
 const isMockMode = () => {
   // Demo mode is the safe default when no .env file is present.
   return import.meta.env.VITE_USE_MOCK_DATA !== 'false';
@@ -65,6 +73,22 @@ function transformMockGeometry(
 
 export const tripService = {
   isMockConfigured: isMockMode,
+
+  async getFuelPrice(city = 'Mumbai'): Promise<FuelPrice> {
+    if (isMockMode()) {
+      return {
+        fuel_type: 'diesel',
+        city,
+        price_inr_per_litre: 94,
+        source: 'simulated',
+        as_of: new Date().toISOString(),
+      };
+    }
+
+    return apiClient<FuelPrice>(
+      `${ENDPOINTS.FUEL_PRICE}?city=${encodeURIComponent(city)}`
+    );
+  },
 
   async planTrip(request: PlanRequest): Promise<PlanResponse> {
     if (isMockMode()) {

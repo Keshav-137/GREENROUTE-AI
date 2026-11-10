@@ -111,6 +111,18 @@ def health() -> dict[str, Any]:
                          "fuel_prices": "configured" if get_diesel_price()["source"] != "simulated" else "fallback"}}
 
 
+@app.get("/api/v1/fuel-price")
+def fuel_price(city: str = "Mumbai") -> dict[str, Any]:
+    price = get_diesel_price(city)
+    return {
+        "fuel_type": "diesel",
+        "city": city,
+        "price_inr_per_litre": price["price_inr_per_litre"],
+        "source": price["source"],
+        "as_of": datetime.now(timezone.utc).isoformat(),
+    }
+
+
 @app.get("/api/v1/hazards.geojson")
 def hazards() -> dict[str, Any]:
     return hazard_geojson()

@@ -4,5 +4,5 @@ export const ENDPOINTS = {
   RERANK: '/api/v1/rerank',
   REPORT: (tripId: string) => `/api/v1/report/${encodeURIComponent(tripId)}`,
   HEALTH: '/api/v1/health',
+  FUEL_PRICE: '/api/v1/fuel-price',
 } as const;
-

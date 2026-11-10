@@ -4,6 +4,7 @@ import { DataStatusChip } from '@/components/common/DataStatusChip';
 import { useRouteStore } from '@/store/routeStore';
 import { tripService } from '@/services/tripService';
 import { RefreshCw, Server } from 'lucide-react';
+import { Fuel } from 'lucide-react';
 
 export const Topbar: React.FC = () => {
   const location = useLocation();
@@ -12,9 +13,11 @@ export const Topbar: React.FC = () => {
     status: string;
     is_live: boolean;
   }>({ status: 'checking...', is_live: false });
+  const [fuelPrice, setFuelPrice] = useState<Awaited<ReturnType<typeof tripService.getFuelPrice>> | null>(null);
 
   useEffect(() => {
     tripService.checkHealth().then(setBackendHealth);
+    tripService.getFuelPrice().then(setFuelPrice).catch(() => setFuelPrice(null));
   }, []);
 
   // Determine title and description based on current pathname
@@ -55,7 +58,7 @@ export const Topbar: React.FC = () => {
   const { title, description } = getPageInfo();
 
   return (
-    <header className="h-18 px-6 py-3.5 bg-[#12231e]/90 backdrop-blur-md border-b border-forest-750/70 flex items-center justify-between z-20 sticky top-0">
+    <header className="min-h-18 px-4 md:px-6 py-3 bg-[#12231e]/90 backdrop-blur-md border-b border-forest-750/70 flex items-center justify-between gap-3 z-20 sticky top-0">
       {/* Title & Description */}
       <div className="flex flex-col">
         <h1 className="text-lg font-bold text-white tracking-tight leading-snug">
@@ -66,8 +69,21 @@ export const Topbar: React.FC = () => {
         </p>
       </div>
 
-      {/* Right Controls: Data Status, Backend Health, Utility */}
-      <div className="flex items-center gap-3">
+      {/* Right Controls: Fuel Price, Data Status, Backend Health, Utility */}
+      <div className="flex items-center gap-2 md:gap-3">
+        {fuelPrice && (
+          <div
+            className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs bg-amber-500/10 text-amber-300 border border-amber-500/30"
+            title={`Today's ${fuelPrice.fuel_type} price in ${fuelPrice.city}. Source: ${fuelPrice.source}.`}
+          >
+            <Fuel className="w-3.5 h-3.5" />
+            <span className="font-semibold">Diesel</span>
+            <span className="font-mono">₹{fuelPrice.price_inr_per_litre.toFixed(2)}/L</span>
+            <span className="hidden lg:inline text-[10px] opacity-70">
+              {fuelPrice.source === 'live' ? 'LIVE' : fuelPrice.source.toUpperCase()}
+            </span>
+          </div>
+        )}
         {/* Data Status Chip */}
         <DataStatusChip
           status={planResult?.data_status}
@@ -111,4 +127,3 @@ export const Topbar: React.FC = () => {
     </header>
   );
 };
-
